@@ -34,6 +34,23 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 }
 
 func (r *PostgreSQLRepository) Registration(request types.RegisterRequest) error {
+	query := `
+		INSERT INTO registrations
+		(teacher_email, student_email)
+		VALUES ($1, $2)
+`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	for _, studentEmail := range request.Students {
+		_, err := stmt.Exec(request.Teacher, studentEmail)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
