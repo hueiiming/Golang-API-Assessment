@@ -11,7 +11,14 @@ import (
 func main() {
 	port := flag.String("port", ":3000", "server address")
 	flag.Parse()
-	repo := repository.NewPostgreSQLRepository()
+	repo, err := repository.NewPostgreSQLRepository()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := repo.Init(); err != nil {
+		log.Fatal(err)
+	}
 
 	server := api.NewServer(*port, repo)
 	fmt.Println("server running on port:", *port)
