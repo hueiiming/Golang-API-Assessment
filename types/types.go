@@ -10,14 +10,14 @@ type SuspendRequest struct {
 }
 
 type NotificationRequest struct {
-	Teacher      string `json:"teacher"`
-	Notification string `json:"notification"`
+	Teacher string `json:"teacher"`
+	Message string `json:"notification"`
 }
 
-type CommonStudents struct {
+type CommonStudentsResponse struct {
 	Students []string `json:"students"`
 }
 
-type Notification struct {
+type NotificationResponse struct {
 	Recipients []string `json:"recipients"`
 }

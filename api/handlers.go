@@ -15,7 +15,7 @@ type ApiError struct {
 func makeHTTPHandle(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			WriteToJSON(w, http.StatusBadRequest, ApiError{Message: err.Error()})
+			WriteToJSON(w, http.StatusBadRequest, ApiError{Message: "error: " + err.Error()})
 		}
 	}
 }
@@ -32,9 +32,11 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		return WriteToJSON(w, http.StatusNoContent, registerReq)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		queryParam := r.URL.Query()
@@ -64,14 +66,16 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 			allStudents = append(allStudents, students...)
 		}
 
-		commonStudents := &types.CommonStudents{
+		commonStudents := &types.CommonStudentsResponse{
 			Students: allStudents,
 		}
 
 		return WriteToJSON(w, http.StatusOK, commonStudents)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
 		suspendReq := types.SuspendRequest{}
@@ -84,11 +88,31 @@ func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		return WriteToJSON(w, http.StatusNoContent, suspendReq)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	if r.Method == "POST" {
+		notifReq := types.NotificationRequest{}
+		if err := json.NewDecoder(r.Body).Decode(&notifReq); err != nil {
+			return err
+		}
+
+		resp, err := s.repo.GetNotification(&notifReq)
+		if err != nil {
+			return err
+		}
+
+		notification := &types.NotificationResponse{
+			Recipients: resp,
+		}
+
+		return WriteToJSON(w, http.StatusOK, notification)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
+	}
 }
 
 func WriteToJSON(w http.ResponseWriter, status int, v any) error {
