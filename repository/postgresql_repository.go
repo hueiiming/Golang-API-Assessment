@@ -3,13 +3,14 @@ package repository
 import (
 	"Golang-API-Assessment/types"
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 )
 
 //go:generate mockery --name=Repository
 type Repository interface {
 	Registration(request *types.RegisterRequest) error
-	GetCommonStudents() (*types.CommonStudents, error)
+	GetCommonStudents(teacherEmail string) ([]string, error)
 	GetNotification() (*types.Notification, error)
 }
 
@@ -34,7 +35,7 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 	}, nil
 }
 
-func (r *PostgreSQLRepository) Registration(request types.RegisterRequest) error {
+func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) error {
 	query := "INSERT INTO registrations (teacher_email, student_email) VALUES ($1, $2)"
 
 	stmt, err := r.db.Prepare(query)
@@ -52,13 +53,32 @@ func (r *PostgreSQLRepository) Registration(request types.RegisterRequest) error
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetCommonStudents() (*types.CommonStudents, error) {
-	return &types.CommonStudents{
-		Students: []string{
-			"test@gmail.com",
-			"test2@gmail.com",
-		},
-	}, nil
+func (r *PostgreSQLRepository) GetCommonStudents(teacherEmail string) ([]string, error) {
+	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = $1"
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		fmt.Errorf("error preparing statement: %s", err)
+		return nil, err
+	}
+
+	rows, err := stmt.Query(teacherEmail)
+	if err != nil {
+		fmt.Errorf("error querying from DB: %s", err)
+		return nil, err
+	}
+
+	var students []string
+
+	for rows.Next() {
+		var studentEmail string
+		if err := rows.Scan(&studentEmail); err != nil {
+			return nil, err
+		}
+		students = append(students, studentEmail)
+	}
+
+	return students, nil
 }
 
 func (r *PostgreSQLRepository) GetNotification() (*types.Notification, error) {

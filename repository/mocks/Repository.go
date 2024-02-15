@@ -13,29 +13,29 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetCommonStudents provides a mock function with given fields:
-func (_m *Repository) GetCommonStudents() (*types.CommonStudents, error) {
-	ret := _m.Called()
+// GetCommonStudents provides a mock function with given fields: teacherEmail
+func (_m *Repository) GetCommonStudents(teacherEmail string) ([]string, error) {
+	ret := _m.Called(teacherEmail)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCommonStudents")
 	}
 
-	var r0 *types.CommonStudents
+	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*types.CommonStudents, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) ([]string, error)); ok {
+		return rf(teacherEmail)
 	}
-	if rf, ok := ret.Get(0).(func() *types.CommonStudents); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
+		r0 = rf(teacherEmail)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*types.CommonStudents)
+			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(teacherEmail)
 	} else {
 		r1 = ret.Error(1)
 	}
