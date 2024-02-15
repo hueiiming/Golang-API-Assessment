@@ -133,7 +133,7 @@ func TestHandlersGet(t *testing.T) {
 		expBody    interface{}
 	}{
 		{
-			name:       "When getCommonStudents is called with 1 teacher request via GET method, return status cose 200 and response body",
+			name:       "When getCommonStudents is called with 1 teacher request via GET method, return status code 200 and response body",
 			restMethod: http.MethodGet,
 			mockMethod: "GetCommonStudents",
 			path:       "/api/commonstudents?teacher=teacherken%40gmail.com",
@@ -147,6 +147,23 @@ func TestHandlersGet(t *testing.T) {
 					"studentjon@gmail.com",
 					"studenthon@gmail.com",
 					"student_only_under_teacherken@gmail.com",
+				},
+			},
+		},
+		{
+			name:       "When getCommonStudents is called with 2 teacher request via GET method, return status code 200 and response body",
+			restMethod: http.MethodGet,
+			mockMethod: "GetCommonStudents",
+			path:       "/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
+			repo: []string{
+				"studentjon@gmail.com",
+				"studenthon@gmail.com",
+			},
+			expStatus: 200,
+			expBody: types.CommonStudentsResponse{
+				Students: []string{
+					"studentjon@gmail.com",
+					"studenthon@gmail.com",
 				},
 			},
 		},
