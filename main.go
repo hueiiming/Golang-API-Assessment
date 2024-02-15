@@ -5,11 +5,23 @@ import (
 	"Golang-API-Assessment/repository"
 	"flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 )
 
 func main() {
-	port := flag.String("port", ":3000", "server address")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("err loading: %v", err)
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	listenAddr := flag.String("port", ":"+port, "server address")
 	flag.Parse()
 	repo, err := repository.NewPostgreSQLRepository()
 	if err != nil {
@@ -20,7 +32,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := api.NewServer(*port, repo)
-	fmt.Println("server running on port:", *port)
+	server := api.NewServer(*listenAddr, repo)
+	fmt.Println("server running on port:", *listenAddr)
 	log.Fatal(server.Start())
 }
