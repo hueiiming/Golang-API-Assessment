@@ -77,11 +77,13 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"student_email"}).
 		AddRow("studentjon@gmail.com")
 
+	pqTeachers := pq.StringArray([]string{"teacherken@gmail.com"})
+
 	mock.ExpectPrepare("SELECT student_email").ExpectQuery().
-		WithArgs("teacherken@gmail.com").
+		WithArgs(pqTeachers).
 		WillReturnRows(rows)
 
-	request := "teacherken@gmail.com"
+	request := []string{"teacherken@gmail.com"}
 
 	_, err = repo.GetCommonStudents(request)
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 //go:generate mockery --name=Repository
 type Repository interface {
 	Registration(request *types.RegisterRequest) error
-	GetCommonStudents(teacherEmail string) ([]string, error)
+	GetCommonStudents(teachers []string) ([]string, error)
 	Suspension(request *types.SuspendRequest) error
 	GetNotification(request *types.NotificationRequest) ([]string, error)
 }
@@ -56,8 +56,9 @@ func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) erro
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetCommonStudents(teacherEmail string) ([]string, error) {
-	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = $1"
+func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, error) {
+	pqTeachers := pq.StringArray(teachers)
+	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email in any($1)"
 
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
@@ -65,7 +66,7 @@ func (r *PostgreSQLRepository) GetCommonStudents(teacherEmail string) ([]string,
 		return nil, err
 	}
 
-	rows, err := stmt.Query(teacherEmail)
+	rows, err := stmt.Query(pqTeachers)
 	if err != nil {
 		fmt.Errorf("error querying from DB: %s", err)
 		return nil, err
