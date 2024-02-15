@@ -93,7 +93,7 @@ func (r *PostgreSQLRepository) getStudents(teacherEmail string) ([]string, error
 
 	rows, err := stmt.Query(teacherEmail)
 	if err != nil {
-		fmt.Errorf("error getting teacherEmail: %s", err)
+		fmt.Errorf("error querying from DB: %s", err)
 		return nil, err
 	}
 
