@@ -15,17 +15,19 @@ import (
 
 func TestHandlersPost(t *testing.T) {
 	tests := []struct {
-		name      string
-		method    string
-		path      string
-		request   interface{}
-		expStatus int
-		expBody   string
+		name       string
+		restMethod string
+		mockMethod string
+		path       string
+		request    interface{}
+		expStatus  int
+		expBody    string
 	}{
 		{
-			name:   "When handleRegister is called with correct request via POST method, return status code 204",
-			method: http.MethodPost,
-			path:   "/api/register",
+			name:       "When handleRegister is called with correct request via POST method, return status code 204",
+			restMethod: http.MethodPost,
+			mockMethod: "Registration",
+			path:       "/api/register",
 			request: &types.RegisterRequest{
 				Teacher: "teacherken@gmail.com",
 				Students: []string{
@@ -36,22 +38,40 @@ func TestHandlersPost(t *testing.T) {
 			expStatus: http.StatusNoContent,
 			expBody:   "",
 		},
+		{
+			name:       "When handleSuspend is called with correct request via POST method, return status code 204",
+			restMethod: http.MethodPost,
+			mockMethod: "Suspension",
+			path:       "/api/suspend",
+			request: &types.SuspendRequest{
+				Student: "studentmary@gmail.com",
+			},
+			expStatus: http.StatusNoContent,
+			expBody:   "",
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			repository := new(mocks.Repository)
-			repository.On("Registration", tc.request).Once().Return(nil)
+			repository.On(tc.mockMethod, tc.request).Once().Return(nil)
 			defer repository.AssertExpectations(t)
 
 			s := NewServer(":3000", repository)
-			server := httptest.NewServer(makeHTTPHandle(s.handleRegister))
+			var server *httptest.Server
+
+			switch tc.mockMethod {
+			case "Registration":
+				server = httptest.NewServer(makeHTTPHandle(s.handleRegister))
+			case "Suspension":
+				server = httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+			}
 			defer server.Close()
 
 			requestByte, err := json.Marshal(tc.request)
 			if err != nil {
 				t.Errorf("Error marshalling request: %s", err)
 			}
-			req, err := http.NewRequest(tc.method, server.URL+tc.path, bytes.NewBuffer(requestByte))
+			req, err := http.NewRequest(tc.restMethod, server.URL+tc.path, bytes.NewBuffer(requestByte))
 			if err != nil {
 				t.Errorf("Error creating POST request: %s", err)
 			}
@@ -68,17 +88,19 @@ func TestHandlersPost(t *testing.T) {
 
 func TestHandlersGet(t *testing.T) {
 	tests := []struct {
-		name      string
-		method    string
-		path      string
-		repo      []string
-		expStatus int
-		expBody   interface{}
+		name       string
+		restMethod string
+		mockMethod string
+		path       string
+		repo       []string
+		expStatus  int
+		expBody    interface{}
 	}{
 		{
-			name:   "When getCommonStudents is called with 1 teacher request via GET method, return status cose 200 and response body",
-			method: http.MethodGet,
-			path:   "/api/commonstudents?teacher=teacherken%40gmail.com",
+			name:       "When getCommonStudents is called with 1 teacher request via GET method, return status cose 200 and response body",
+			restMethod: http.MethodGet,
+			mockMethod: "GetCommonStudents",
+			path:       "/api/commonstudents?teacher=teacherken%40gmail.com",
 			repo: []string{
 				"studentjon@gmail.com",
 				"studenthon@gmail.com",
@@ -98,14 +120,14 @@ func TestHandlersGet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			repository := new(mocks.Repository)
 
-			repository.On("GetCommonStudents", mock.Anything).Return(tc.repo, nil)
+			repository.On(tc.mockMethod, mock.Anything).Return(tc.repo, nil)
 			defer repository.AssertExpectations(t)
 
 			s := NewServer(":3000", repository)
 			server := httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
 			defer server.Close()
 
-			req, err := http.NewRequest(tc.method, server.URL+tc.path, nil)
+			req, err := http.NewRequest(tc.restMethod, server.URL+tc.path, nil)
 			if err != nil {
 				t.Errorf("Error creating GET request: %s", err)
 			}

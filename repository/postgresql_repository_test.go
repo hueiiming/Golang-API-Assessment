@@ -35,7 +35,7 @@ func TestPostgreSQLRepository_Registration(t *testing.T) {
 
 	err = repo.Registration(request)
 	if err != nil {
-		t.Errorf("Failed to insert into REGISTRATION TABLE: %s", err)
+		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -68,7 +68,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 	err = repo.Registration(registerReq)
 
 	if err != nil {
-		t.Errorf("Failed to insert into REGISTRATION TABLE: %s", err)
+		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
 	}
 
 	rows := sqlmock.NewRows([]string{"student_email"}).
@@ -82,7 +82,36 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 
 	_, err = repo.GetCommonStudents(request)
 	if err != nil {
-		t.Errorf("Failed to get student_email from REGISTRATION TABLE: %s", err)
+		t.Errorf("Failed to get student_email from REGISTRATIONS TABLE: %s", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Failed expectations: %s", err)
+	}
+}
+
+func TestPostgreSQLRepository_Suspension(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening stub database connection", err)
+	}
+	defer db.Close()
+
+	repo := &PostgreSQLRepository{
+		db: db,
+	}
+
+	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+		WithArgs("studentmary@gmail.com").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	request := &types.SuspendRequest{
+		Student: "studentmary@gmail.com",
+	}
+
+	err = repo.Suspension(request)
+	if err != nil {
+		t.Errorf("Failed to insert into SUSPENSIONS TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {

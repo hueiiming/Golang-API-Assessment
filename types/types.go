@@ -5,6 +5,15 @@ type RegisterRequest struct {
 	Students []string `json:"students"`
 }
 
+type SuspendRequest struct {
+	Student string `json:"student"`
+}
+
+type NotificationRequest struct {
+	Teacher      string `json:"teacher"`
+	Notification string `json:"notification"`
+}
+
 type CommonStudents struct {
 	Students []string `json:"students"`
 }
