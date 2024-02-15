@@ -27,7 +27,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		if err := s.repo.Registration(registerReq); err != nil {
+		if err := s.repo.Registration(&registerReq); err != nil {
 			return err
 		}
 
