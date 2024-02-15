@@ -14,11 +14,15 @@ import (
 func TestHandlers(t *testing.T) {
 	tests := []struct {
 		name      string
-		request   *types.RegisterRequest
+		method    string
+		path      string
+		request   interface{}
 		expStatus int
 	}{
 		{
-			name: "When handleRegister is called with correct request, return status code 204",
+			name:   "When handleRegister is called with correct request, return status code 204",
+			method: http.MethodPost,
+			path:   "/api/register",
 			request: &types.RegisterRequest{
 				Teacher: "teacherken@gmail.com",
 				Students: []string{
@@ -37,13 +41,20 @@ func TestHandlers(t *testing.T) {
 
 			s := NewServer(":3000", repository)
 			server := httptest.NewServer(makeHTTPHandle(s.handleRegister))
+			defer server.Close()
+
 			requestByte, err := json.Marshal(tc.request)
 			if err != nil {
 				t.Errorf("Error marshalling request: %s", err)
 			}
-			resp, err := http.Post(server.URL+"/api/register", "application/json", bytes.NewBuffer(requestByte))
+			req, err := http.NewRequest(tc.method, server.URL+tc.path, bytes.NewBuffer(requestByte))
 			if err != nil {
-				t.Errorf("Error posting request: %s", err)
+				t.Errorf("Error creating request: %s", err)
+			}
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Errorf("Error sending request: %s", err)
 			}
 
 			assert.Equal(t, http.StatusNoContent, resp.StatusCode)
