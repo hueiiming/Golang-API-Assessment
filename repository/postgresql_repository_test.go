@@ -3,6 +3,7 @@ package repository
 import (
 	"Golang-API-Assessment/types"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/lib/pq"
 	"testing"
 )
 
@@ -112,6 +113,74 @@ func TestPostgreSQLRepository_Suspension(t *testing.T) {
 	err = repo.Suspension(request)
 	if err != nil {
 		t.Errorf("Failed to insert into SUSPENSIONS TABLE: %s", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Failed expectations: %s", err)
+	}
+}
+
+func TestPostgreSQLRepository_GetNotification(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening stub database connection", err)
+	}
+	defer db.Close()
+
+	repo := &PostgreSQLRepository{
+		db: db,
+	}
+
+	registerReq := &types.RegisterRequest{
+		Teacher: "teacherken@gmail.com",
+		Students: []string{
+			"studentjon@gmail.com",
+		},
+	}
+
+	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+		WithArgs("teacherken@gmail.com", "studentjon@gmail.com").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	err = repo.Registration(registerReq)
+
+	if err != nil {
+		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
+	}
+
+	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+		WithArgs("studentmary@gmail.com").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	SuspendReq := &types.SuspendRequest{
+		Student: "studentmary@gmail.com",
+	}
+
+	err = repo.Suspension(SuspendReq)
+	if err != nil {
+		t.Errorf("Failed to insert into SUSPENSIONS TABLE: %s", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Failed expectations: %s", err)
+	}
+
+	rows := sqlmock.NewRows([]string{"student_email"}).
+		AddRow("studentjon@gmail.com")
+	pqEmails := pq.StringArray([]string{"studentagnes@gmail.com", "studentmiche@gmail.com"})
+
+	mock.ExpectPrepare("SELECT student_email").ExpectQuery().
+		WithArgs("teacherken@gmail.com", pqEmails).
+		WillReturnRows(rows)
+
+	notifRequest := &types.NotificationRequest{
+		Teacher: "teacherken@gmail.com",
+		Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
+	}
+
+	_, err = repo.GetNotification(notifRequest)
+	if err != nil {
+		t.Errorf("Failed to get student_email from REGISTRATION AND SUSPENSION table: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
