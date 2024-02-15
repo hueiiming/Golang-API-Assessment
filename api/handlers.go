@@ -32,9 +32,11 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		return WriteToJSON(w, http.StatusNoContent, registerReq)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		queryParam := r.URL.Query()
@@ -69,9 +71,11 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 		}
 
 		return WriteToJSON(w, http.StatusOK, commonStudents)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
 		suspendReq := types.SuspendRequest{}
@@ -84,9 +88,11 @@ func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		return WriteToJSON(w, http.StatusNoContent, suspendReq)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
+
 func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
 		notifReq := types.NotificationRequest{}
@@ -104,8 +110,9 @@ func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 		}
 
 		return WriteToJSON(w, http.StatusOK, notification)
+	} else {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "Status Method not allowed"})
 	}
-	return nil
 }
 
 func WriteToJSON(w http.ResponseWriter, status int, v any) error {
