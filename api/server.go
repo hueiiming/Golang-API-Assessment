@@ -7,10 +7,10 @@ import (
 
 type Server struct {
 	port string
-	repo repository.Repository
+	repo *repository.PostgreSQLRepository
 }
 
-func NewServer(port string, repo repository.Repository) *Server {
+func NewServer(port string, repo *repository.PostgreSQLRepository) *Server {
 	return &Server{
 		port: port,
 		repo: repo,

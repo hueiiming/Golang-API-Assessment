@@ -3,6 +3,7 @@ package repository
 import (
 	"Golang-API-Assessment/types"
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 )
 
@@ -34,7 +35,7 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 	}, nil
 }
 
-func (r *PostgreSQLRepository) Registration(request types.RegisterRequest) error {
+func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) error {
 	query := "INSERT INTO registrations (teacher_email, student_email) VALUES ($1, $2)"
 
 	stmt, err := r.db.Prepare(query)
@@ -52,13 +53,61 @@ func (r *PostgreSQLRepository) Registration(request types.RegisterRequest) error
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetCommonStudents() (*types.CommonStudents, error) {
-	return &types.CommonStudents{
-		Students: []string{
-			"test@gmail.com",
-			"test2@gmail.com",
-		},
-	}, nil
+func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) (*types.CommonStudents, error) {
+	if len(teachers) == 1 {
+		teacherEmail := teachers[0]
+		students, err := r.getStudents(teacherEmail)
+		if err != nil {
+			return nil, err
+		}
+		students = append(students, "student_only_under_"+teacherEmail)
+
+		return &types.CommonStudents{
+			Students: students,
+		}, nil
+
+	} else {
+		var allStudents []string
+
+		for _, teacher := range teachers {
+			students, err := r.getStudents(teacher)
+			if err != nil {
+				return nil, err
+			}
+			allStudents = append(allStudents, students...)
+		}
+		return &types.CommonStudents{
+			Students: allStudents,
+		}, nil
+	}
+}
+
+func (r *PostgreSQLRepository) getStudents(teacherEmail string) ([]string, error) {
+	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = $1"
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		fmt.Errorf("error preparing statement: %s", err)
+		return nil, err
+	}
+
+	rows, err := stmt.Query(teacherEmail)
+	if err != nil {
+		fmt.Errorf("error getting teacherEmail: %s", err)
+		return nil, err
+	}
+
+	var students []string
+
+	for rows.Next() {
+		var studentEmail string
+		if err := rows.Scan(&studentEmail); err != nil {
+			return nil, err
+		}
+		students = append(students, studentEmail)
+	}
+
+	return students, nil
 }
 
 func (r *PostgreSQLRepository) GetNotification() (*types.Notification, error) {

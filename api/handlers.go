@@ -36,11 +36,17 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) error {
-	user, err := s.repo.GetCommonStudents()
-	if err != nil {
-		return err
+	if r.Method == "GET" {
+		queryParam := r.URL.Query()
+		teachers := queryParam["teacher"]
+
+		user, err := s.repo.GetCommonStudents(teachers)
+		if err != nil {
+			return err
+		}
+		return WriteToJSON(w, http.StatusOK, user)
 	}
-	return WriteToJSON(w, 204, user)
+	return nil
 }
 func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 	return nil
