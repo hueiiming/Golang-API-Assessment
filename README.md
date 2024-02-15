@@ -9,13 +9,7 @@ Backend application that will be part of a system which teachers can use to perf
 git clone https://github.com/hueiiming/Golang-API-Assessment.git
 ```
 
-<h3>Step 2: Start up docker locally and run docker-compose</h3>
-
-```
-docker-compose up -d
-```
-
-<h3>Step 3:</h3>
+<h3>Step 2: Run go project</h3>
 
 ```
 make run
