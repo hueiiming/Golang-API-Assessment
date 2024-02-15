@@ -60,7 +60,7 @@ func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) erro
 
 func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, error) {
 	pqTeachers := pq.StringArray(teachers)
-	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email in any($1)"
+	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = any($1)"
 
 	stmt, err := r.db.Prepare(query)
 	if err != nil {

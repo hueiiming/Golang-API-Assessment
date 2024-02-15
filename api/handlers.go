@@ -50,7 +50,11 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	if len(teachers) == 1 {
+	if len(students) == 0 {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "No students found"})
+	}
+
+	if len(teachers) == 1 && len(students) >= 1 {
 		students = append(students, "student_only_under_"+teachers[0])
 	}
 
@@ -91,6 +95,10 @@ func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 	resp, err := s.repo.GetNotification(&notifReq)
 	if err != nil {
 		return err
+	}
+
+	if len(resp) == 0 {
+		return WriteToJSON(w, http.StatusMethodNotAllowed, ApiError{Message: "No recipients found"})
 	}
 
 	notification := &types.NotificationResponse{
