@@ -20,7 +20,7 @@ func TestHandlers(t *testing.T) {
 		expStatus int
 	}{
 		{
-			name:   "When handleRegister is called with correct request, return status code 204",
+			name:   "When handleRegister is called with correct request via POST method, return status code 204",
 			method: http.MethodPost,
 			path:   "/api/register",
 			request: &types.RegisterRequest{
