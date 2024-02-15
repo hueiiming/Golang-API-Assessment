@@ -73,6 +73,18 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 	return nil
 }
 func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		suspendReq := types.SuspendRequest{}
+		if err := json.NewDecoder(r.Body).Decode(&suspendReq); err != nil {
+			return err
+		}
+
+		if err := s.repo.Suspension(&suspendReq); err != nil {
+			return err
+		}
+
+		return WriteToJSON(w, http.StatusNoContent, suspendReq)
+	}
 	return nil
 }
 func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {

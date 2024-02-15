@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Registration(request *types.RegisterRequest) error
 	GetCommonStudents(teacherEmail string) ([]string, error)
+	Suspension(request *types.SuspendRequest) error
 	GetNotification() (*types.Notification, error)
 }
 
@@ -79,6 +80,22 @@ func (r *PostgreSQLRepository) GetCommonStudents(teacherEmail string) ([]string,
 	}
 
 	return students, nil
+}
+
+func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
+	query := "INSERT INTO suspensions (student_email) VALUES ($1)"
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(request.Student)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *PostgreSQLRepository) GetNotification() (*types.Notification, error) {

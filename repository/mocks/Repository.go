@@ -91,6 +91,24 @@ func (_m *Repository) Registration(request *types.RegisterRequest) error {
 	return r0
 }
 
+// Suspension provides a mock function with given fields: request
+func (_m *Repository) Suspension(request *types.SuspendRequest) error {
+	ret := _m.Called(request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Suspension")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*types.SuspendRequest) error); ok {
+		r0 = rf(request)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewRepository creates a new instance of Repository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewRepository(t interface {
