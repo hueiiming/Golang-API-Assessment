@@ -60,9 +60,8 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 					return err
 				}
 				students = append(students, currStudent...)
-				allStudents = append(allStudents, students...)
-
 			}
+			allStudents = append(allStudents, students...)
 		}
 
 		commonStudents := &types.CommonStudents{
