@@ -43,9 +43,9 @@ func (_m *Repository) GetCommonStudents(teacherEmail string) ([]string, error) {
 	return r0, r1
 }
 
-// GetNotification provides a mock function with given fields:
-func (_m *Repository) GetNotification() (*types.Notification, error) {
-	ret := _m.Called()
+// GetNotification provides a mock function with given fields: request
+func (_m *Repository) GetNotification(request *types.NotificationRequest) (*types.Notification, error) {
+	ret := _m.Called(request)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetNotification")
@@ -53,19 +53,19 @@ func (_m *Repository) GetNotification() (*types.Notification, error) {
 
 	var r0 *types.Notification
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*types.Notification, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(*types.NotificationRequest) (*types.Notification, error)); ok {
+		return rf(request)
 	}
-	if rf, ok := ret.Get(0).(func() *types.Notification); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(*types.NotificationRequest) *types.Notification); ok {
+		r0 = rf(request)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*types.Notification)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(*types.NotificationRequest) error); ok {
+		r1 = rf(request)
 	} else {
 		r1 = ret.Error(1)
 	}

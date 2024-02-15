@@ -88,6 +88,19 @@ func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		notifReq := types.NotificationRequest{}
+		if err := json.NewDecoder(r.Body).Decode(&notifReq); err != nil {
+			return err
+		}
+
+		resp, err := s.repo.GetNotification(&notifReq)
+		if err != nil {
+			return err
+		}
+
+		return WriteToJSON(w, http.StatusOK, resp)
+	}
 	return nil
 }
 

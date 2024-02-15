@@ -4,7 +4,9 @@ import (
 	"Golang-API-Assessment/types"
 	"database/sql"
 	"fmt"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
+	"regexp"
 )
 
 //go:generate mockery --name=Repository
@@ -12,7 +14,7 @@ type Repository interface {
 	Registration(request *types.RegisterRequest) error
 	GetCommonStudents(teacherEmail string) ([]string, error)
 	Suspension(request *types.SuspendRequest) error
-	GetNotification() (*types.Notification, error)
+	GetNotification(request *types.NotificationRequest) (*types.Notification, error)
 }
 
 type PostgreSQLRepository struct {
@@ -98,8 +100,49 @@ func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetNotification() (*types.Notification, error) {
-	return &types.Notification{}, nil
+func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) (*types.Notification, error) {
+	emails := extractEmails(request.Message)
+	pqEmails := pq.StringArray(emails)
+
+	query := `SELECT DISTINCT student_email
+				FROM REGISTRATIONS
+				WHERE (teacher_email = $1 OR student_email = any($2))
+				AND student_email NOT IN (
+				    SELECT student_email FROM SUSPENSIONS
+				)
+				`
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		fmt.Errorf("error preparing statement: %s", err)
+		return nil, err
+	}
+
+	rows, err := stmt.Query(request.Teacher, pqEmails)
+	if err != nil {
+		fmt.Errorf("error querying from DB: %s", err)
+		return nil, err
+	}
+
+	var students []string
+
+	for rows.Next() {
+		var studentEmail string
+		if err := rows.Scan(&studentEmail); err != nil {
+			return nil, err
+		}
+		students = append(students, studentEmail)
+	}
+
+	return &types.Notification{Recipients: students}, nil
+}
+
+func extractEmails(message string) []string {
+	pattern := `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b`
+
+	re := regexp.MustCompile(pattern)
+
+	return re.FindAllString(message, -1)
 }
 
 func (r *PostgreSQLRepository) Init() error {
