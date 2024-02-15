@@ -18,9 +18,9 @@ func NewServer(listenAddr string, repo repository.Repository) *Server {
 }
 
 func (s *Server) Start() error {
-	http.HandleFunc("/api/register", s.handleRegister)
-	http.HandleFunc("/api/commonstudents", s.handleCommonStudents)
-	http.HandleFunc("/api/suspend", s.handleSuspend)
-	http.HandleFunc("/api/retrievefornotifications", s.handleRetrieveNotifications)
+	http.HandleFunc("/api/register", makeHTTPHandle(s.handleRegister))
+	http.HandleFunc("/api/commonstudents", makeHTTPHandle(s.handleCommonStudents))
+	http.HandleFunc("/api/suspend", makeHTTPHandle(s.handleSuspend))
+	http.HandleFunc("/api/retrievefornotifications", makeHTTPHandle(s.handleRetrieveNotifications))
 	return http.ListenAndServe(s.listenAddr, nil)
 }
