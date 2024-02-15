@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
+	"os"
 	"regexp"
 )
 
@@ -22,7 +23,8 @@ type PostgreSQLRepository struct {
 }
 
 func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
-	connStr := "user=postgres dbname=postgres password=root sslmode=disable"
+	password := os.Getenv("DB_PASSWORD")
+	connStr := "user=postgres.wxmkhkkcxatyzukbfqtw password=" + password + " host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres"
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
@@ -155,18 +157,6 @@ func (r *PostgreSQLRepository) createTables() error {
 			 suspension_id SERIAL PRIMARY KEY,
 			 student_email VARCHAR(255),
 			 UNIQUE (student_email)
-		);
-		
-		CREATE TABLE IF NOT EXISTS notifications (
-		   notification_id SERIAL PRIMARY KEY,
-		   teacher_email VARCHAR(255),
-		   notification_text TEXT NOT NULL
-		);
-		
-		CREATE TABLE IF NOT EXISTS mentioned_students (
-			mention_id SERIAL PRIMARY KEY,
-			notification_id INT REFERENCES notifications(notification_id),
-			student_email VARCHAR(255)
 		);
 	`
 	_, err := r.db.Exec(query)
