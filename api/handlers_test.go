@@ -59,7 +59,7 @@ func TestHandlersPost(t *testing.T) {
 				Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
 			},
 			expStatus: http.StatusOK,
-			expBody: types.Notification{
+			expBody: types.NotificationResponse{
 				Recipients: []string{
 					"studenthon@gmail.com",
 					"studentjon@gmail.com",
@@ -110,7 +110,7 @@ func TestHandlersPost(t *testing.T) {
 
 			switch tc.mockMethod {
 			case "GetNotification":
-				var respBody types.Notification
+				var respBody types.NotificationResponse
 				err = json.Unmarshal(body, &respBody)
 				if err != nil {
 					t.Errorf("Error parsing JSON response body: %s", err)
@@ -142,7 +142,7 @@ func TestHandlersGet(t *testing.T) {
 				"studenthon@gmail.com",
 			},
 			expStatus: 200,
-			expBody: types.CommonStudents{
+			expBody: types.CommonStudentsResponse{
 				Students: []string{
 					"studentjon@gmail.com",
 					"studenthon@gmail.com",
@@ -177,7 +177,7 @@ func TestHandlersGet(t *testing.T) {
 				t.Errorf("Error reading response body: %s", err)
 			}
 
-			var respBody types.CommonStudents
+			var respBody types.CommonStudentsResponse
 			err = json.Unmarshal(body, &respBody)
 			if err != nil {
 				t.Errorf("Error parsing JSON response body: %s", err)

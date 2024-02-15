@@ -137,14 +137,6 @@ func (r *PostgreSQLRepository) GetNotification(request *types.NotificationReques
 	return students, nil
 }
 
-func extractEmails(message string) []string {
-	pattern := `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b`
-
-	re := regexp.MustCompile(pattern)
-
-	return re.FindAllString(message, -1)
-}
-
 func (r *PostgreSQLRepository) Init() error {
 	return r.createTables()
 }
@@ -178,4 +170,12 @@ func (r *PostgreSQLRepository) createTables() error {
 	`
 	_, err := r.db.Exec(query)
 	return err
+}
+
+func extractEmails(message string) []string {
+	pattern := `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b`
+
+	re := regexp.MustCompile(pattern)
+
+	return re.FindAllString(message, -1)
 }

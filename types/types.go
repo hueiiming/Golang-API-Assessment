@@ -14,10 +14,10 @@ type NotificationRequest struct {
 	Message string `json:"notification"`
 }
 
-type CommonStudents struct {
+type CommonStudentsResponse struct {
 	Students []string `json:"students"`
 }
 
-type Notification struct {
+type NotificationResponse struct {
 	Recipients []string `json:"recipients"`
 }

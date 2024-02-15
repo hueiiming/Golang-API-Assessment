@@ -55,6 +55,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		db: db,
 	}
 
+	// Register student & teacher
 	registerReq := &types.RegisterRequest{
 		Teacher: "teacherken@gmail.com",
 		Students: []string{
@@ -72,6 +73,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
 	}
 
+	// Get common students
 	rows := sqlmock.NewRows([]string{"student_email"}).
 		AddRow("studentjon@gmail.com")
 
@@ -131,6 +133,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		db: db,
 	}
 
+	// Register student & teacher
 	registerReq := &types.RegisterRequest{
 		Teacher: "teacherken@gmail.com",
 		Students: []string{
@@ -148,6 +151,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
 	}
 
+	// Suspend student
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
 		WithArgs("studentmary@gmail.com").
 		WillReturnResult(sqlmock.NewResult(0, 1))
@@ -165,6 +169,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		t.Errorf("Failed expectations: %s", err)
 	}
 
+	// Get notifications
 	rows := sqlmock.NewRows([]string{"student_email"}).
 		AddRow("studentjon@gmail.com")
 	pqEmails := pq.StringArray([]string{"studentagnes@gmail.com", "studentmiche@gmail.com"})

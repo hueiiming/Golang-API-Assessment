@@ -64,7 +64,7 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 			allStudents = append(allStudents, students...)
 		}
 
-		commonStudents := &types.CommonStudents{
+		commonStudents := &types.CommonStudentsResponse{
 			Students: allStudents,
 		}
 
@@ -99,7 +99,7 @@ func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 			return err
 		}
 
-		notification := &types.Notification{
+		notification := &types.NotificationResponse{
 			Recipients: resp,
 		}
 
