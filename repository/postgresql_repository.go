@@ -14,7 +14,7 @@ type Repository interface {
 	Registration(request *types.RegisterRequest) error
 	GetCommonStudents(teacherEmail string) ([]string, error)
 	Suspension(request *types.SuspendRequest) error
-	GetNotification(request *types.NotificationRequest) (*types.Notification, error)
+	GetNotification(request *types.NotificationRequest) ([]string, error)
 }
 
 type PostgreSQLRepository struct {
@@ -100,7 +100,7 @@ func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) (*types.Notification, error) {
+func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) ([]string, error) {
 	emails := extractEmails(request.Message)
 	pqEmails := pq.StringArray(emails)
 
@@ -134,7 +134,7 @@ func (r *PostgreSQLRepository) GetNotification(request *types.NotificationReques
 		students = append(students, studentEmail)
 	}
 
-	return &types.Notification{Recipients: students}, nil
+	return students, nil
 }
 
 func extractEmails(message string) []string {

@@ -21,7 +21,7 @@ func TestHandlersPost(t *testing.T) {
 		path       string
 		request    interface{}
 		expStatus  int
-		expBody    string
+		expBody    interface{}
 	}{
 		{
 			name:       "When handleRegister is called with correct request via POST method, return status code 204",
@@ -36,7 +36,7 @@ func TestHandlersPost(t *testing.T) {
 				},
 			},
 			expStatus: http.StatusNoContent,
-			expBody:   "",
+			expBody:   nil,
 		},
 		{
 			name:       "When handleSuspend is called with correct request via POST method, return status code 204",
@@ -47,24 +47,46 @@ func TestHandlersPost(t *testing.T) {
 				Student: "studentmary@gmail.com",
 			},
 			expStatus: http.StatusNoContent,
-			expBody:   "",
+			expBody:   nil,
+		},
+		{
+			name:       "When handleNotification is called with correct request via POST method, return status code 204 and recipients body",
+			restMethod: http.MethodPost,
+			mockMethod: "GetNotification",
+			path:       "/api/retrievefornotifications",
+			request: &types.NotificationRequest{
+				Teacher: "teacherken@gmail.com",
+				Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
+			},
+			expStatus: http.StatusOK,
+			expBody: types.Notification{
+				Recipients: []string{
+					"studenthon@gmail.com",
+					"studentjon@gmail.com",
+				},
+			},
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			repository := new(mocks.Repository)
-			repository.On(tc.mockMethod, tc.request).Once().Return(nil)
-			defer repository.AssertExpectations(t)
 
 			s := NewServer(":3000", repository)
 			var server *httptest.Server
 
 			switch tc.mockMethod {
 			case "Registration":
+				repository.On(tc.mockMethod, tc.request).Once().Return(nil)
 				server = httptest.NewServer(makeHTTPHandle(s.handleRegister))
 			case "Suspension":
+				repository.On(tc.mockMethod, tc.request).Once().Return(nil)
 				server = httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+			case "GetNotification":
+				repository.On(tc.mockMethod, tc.request).Once().Return([]string{
+					"studenthon@gmail.com", "studentjon@gmail.com"}, nil)
+				server = httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
 			}
+			defer repository.AssertExpectations(t)
 			defer server.Close()
 
 			requestByte, err := json.Marshal(tc.request)
@@ -81,6 +103,20 @@ func TestHandlersPost(t *testing.T) {
 				t.Errorf("Error getting POST response: %s", err)
 			}
 
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				t.Errorf("Error reading response body: %s", err)
+			}
+
+			switch tc.mockMethod {
+			case "GetNotification":
+				var respBody types.Notification
+				err = json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				assert.Equal(t, tc.expBody, respBody)
+			}
 			assert.Equal(t, tc.expStatus, resp.StatusCode)
 		})
 	}

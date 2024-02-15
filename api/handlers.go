@@ -99,7 +99,11 @@ func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 			return err
 		}
 
-		return WriteToJSON(w, http.StatusOK, resp)
+		notification := &types.Notification{
+			Recipients: resp,
+		}
+
+		return WriteToJSON(w, http.StatusOK, notification)
 	}
 	return nil
 }
