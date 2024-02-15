@@ -78,7 +78,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		WithArgs("teacherken@gmail.com").
 		WillReturnRows(rows)
 
-	request := []string{"teacherken@gmail.com"}
+	request := "teacherken@gmail.com"
 
 	_, err = repo.GetCommonStudents(request)
 	if err != nil {

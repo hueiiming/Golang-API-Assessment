@@ -10,7 +10,7 @@ import (
 //go:generate mockery --name=Repository
 type Repository interface {
 	Registration(request *types.RegisterRequest) error
-	GetCommonStudents() (*types.CommonStudents, error)
+	GetCommonStudents(teacherEmail string) ([]string, error)
 	GetNotification() (*types.Notification, error)
 }
 
@@ -53,36 +53,7 @@ func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) erro
 	return nil
 }
 
-func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) (*types.CommonStudents, error) {
-	if len(teachers) == 1 {
-		teacherEmail := teachers[0]
-		students, err := r.getStudents(teacherEmail)
-		if err != nil {
-			return nil, err
-		}
-		students = append(students, "student_only_under_"+teacherEmail)
-
-		return &types.CommonStudents{
-			Students: students,
-		}, nil
-
-	} else {
-		var allStudents []string
-
-		for _, teacher := range teachers {
-			students, err := r.getStudents(teacher)
-			if err != nil {
-				return nil, err
-			}
-			allStudents = append(allStudents, students...)
-		}
-		return &types.CommonStudents{
-			Students: allStudents,
-		}, nil
-	}
-}
-
-func (r *PostgreSQLRepository) getStudents(teacherEmail string) ([]string, error) {
+func (r *PostgreSQLRepository) GetCommonStudents(teacherEmail string) ([]string, error) {
 	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = $1"
 
 	stmt, err := r.db.Prepare(query)

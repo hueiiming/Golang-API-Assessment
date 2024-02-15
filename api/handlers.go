@@ -40,11 +40,36 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 		queryParam := r.URL.Query()
 		teachers := queryParam["teacher"]
 
-		user, err := s.repo.GetCommonStudents(teachers)
-		if err != nil {
-			return err
+		var allStudents []string
+
+		if len(teachers) == 1 {
+			teacherEmail := teachers[0]
+			students, err := s.repo.GetCommonStudents(teacherEmail)
+			if err != nil {
+				return err
+			}
+			students = append(students, "student_only_under_"+teacherEmail)
+			allStudents = append(allStudents, students...)
+
+		} else {
+			var students []string
+
+			for _, teacherEmail := range teachers {
+				currStudent, err := s.repo.GetCommonStudents(teacherEmail)
+				if err != nil {
+					return err
+				}
+				students = append(students, currStudent...)
+				allStudents = append(allStudents, students...)
+
+			}
 		}
-		return WriteToJSON(w, http.StatusOK, user)
+
+		commonStudents := &types.CommonStudents{
+			Students: allStudents,
+		}
+
+		return WriteToJSON(w, http.StatusOK, commonStudents)
 	}
 	return nil
 }
