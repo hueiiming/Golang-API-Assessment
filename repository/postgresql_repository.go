@@ -23,8 +23,23 @@ type PostgreSQLRepository struct {
 }
 
 func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
-	password := os.Getenv("DB_PASSWORD")
-	connStr := "user=postgres.wxmkhkkcxatyzukbfqtw password=" + password + " host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres"
+	var connStr string
+
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "local"
+	}
+
+	switch env {
+	case "local":
+		// Connect to local postgresql
+		connStr = "user=postgres dbname=postgres password=root sslmode=disable"
+	case "prod":
+		// Connect to deployed postgresql https://supabase.com
+		password := os.Getenv("DB_PASSWORD")
+		connStr = "user=postgres.wxmkhkkcxatyzukbfqtw password=" + password + " host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres"
+	}
+
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
