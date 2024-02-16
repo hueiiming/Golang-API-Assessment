@@ -20,8 +20,10 @@ func TestHandlersPost(t *testing.T) {
 		mockMethod string
 		path       string
 		request    interface{}
+		getServer  func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server
 		expStatus  int
 		expBody    interface{}
+		verifyBody func(t *testing.T, body []byte, expBody interface{})
 	}{
 		{
 			name:       "When handleRegister is called with correct request via POST method, return status code 204",
@@ -35,8 +37,43 @@ func TestHandlersPost(t *testing.T) {
 					"studenthon@gmail.com",
 				},
 			},
-			expStatus: http.StatusNoContent,
-			expBody:   nil,
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				repository.On(mockMethod, request).Once().Return(nil)
+				return httptest.NewServer(makeHTTPHandle(s.handleRegister))
+			},
+			expStatus:  http.StatusNoContent,
+			expBody:    nil,
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {},
+		},
+		{
+			name:       "When handleRegister is called with wrong request via POST method, return status code 400 with error message",
+			restMethod: http.MethodPost,
+			mockMethod: "Registration",
+			path:       "/api/register",
+			request: &types.RegisterRequest{
+				Students: []string{
+					"studentjon@gmail.com",
+					"studenthon@gmail.com",
+				},
+			},
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleRegister))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "error: invalid teacher email",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
+			},
 		},
 		{
 			name:       "When handleSuspend is called with correct request via POST method, return status code 204",
@@ -46,8 +83,38 @@ func TestHandlersPost(t *testing.T) {
 			request: &types.SuspendRequest{
 				Student: "studentmary@gmail.com",
 			},
-			expStatus: http.StatusNoContent,
-			expBody:   nil,
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				repository.On(mockMethod, request).Once().Return(nil)
+				return httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+			},
+			expStatus:  http.StatusNoContent,
+			expBody:    nil,
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {},
+		},
+		{
+			name:       "When handleSuspend is called with wrong request via POST method, return status code 400 with error message",
+			restMethod: http.MethodPost,
+			mockMethod: "Suspension",
+			path:       "/api/suspend",
+			request:    &types.SuspendRequest{},
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "error: invalid request",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
+			},
 		},
 		{
 			name:       "When handleNotification is called with correct request via POST method, return status code 204 and recipients body",
@@ -58,6 +125,12 @@ func TestHandlersPost(t *testing.T) {
 				Teacher: "teacherken@gmail.com",
 				Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
 			},
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				repository.On(mockMethod, request).Once().Return([]string{
+					"studenthon@gmail.com", "studentjon@gmail.com"}, nil)
+				return httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
+			},
 			expStatus: http.StatusOK,
 			expBody: types.NotificationResponse{
 				Recipients: []string{
@@ -65,27 +138,48 @@ func TestHandlersPost(t *testing.T) {
 					"studentjon@gmail.com",
 				},
 			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody types.NotificationResponse
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				expected := expBody.(types.NotificationResponse)
+				assert.Equal(t, expected, respBody)
+			},
+		},
+		{
+			name:       "When handleNotification is called with wrong request via POST method, return status code 400 and error message",
+			restMethod: http.MethodPost,
+			mockMethod: "GetNotification",
+			path:       "/api/retrievefornotifications",
+			request: &types.NotificationRequest{
+				Teacher: "teacherken@gmail.com",
+			},
+			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "error: invalid request",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
+			},
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			repository := new(mocks.Repository)
 
-			s := NewServer(":3000", repository)
-			var server *httptest.Server
-
-			switch tc.mockMethod {
-			case "Registration":
-				repository.On(tc.mockMethod, tc.request).Once().Return(nil)
-				server = httptest.NewServer(makeHTTPHandle(s.handleRegister))
-			case "Suspension":
-				repository.On(tc.mockMethod, tc.request).Once().Return(nil)
-				server = httptest.NewServer(makeHTTPHandle(s.handleSuspend))
-			case "GetNotification":
-				repository.On(tc.mockMethod, tc.request).Once().Return([]string{
-					"studenthon@gmail.com", "studentjon@gmail.com"}, nil)
-				server = httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
-			}
+			server := tc.getServer(t, repository, tc.mockMethod, tc.request)
 			defer repository.AssertExpectations(t)
 			defer server.Close()
 
@@ -93,6 +187,7 @@ func TestHandlersPost(t *testing.T) {
 			if err != nil {
 				t.Errorf("Error marshalling request: %s", err)
 			}
+
 			req, err := http.NewRequest(tc.restMethod, server.URL+tc.path, bytes.NewBuffer(requestByte))
 			if err != nil {
 				t.Errorf("Error creating POST request: %s", err)
@@ -108,16 +203,8 @@ func TestHandlersPost(t *testing.T) {
 				t.Errorf("Error reading response body: %s", err)
 			}
 
-			switch tc.mockMethod {
-			case "GetNotification":
-				var respBody types.NotificationResponse
-				err = json.Unmarshal(body, &respBody)
-				if err != nil {
-					t.Errorf("Error parsing JSON response body: %s", err)
-				}
-				assert.Equal(t, tc.expBody, respBody)
-			}
 			assert.Equal(t, tc.expStatus, resp.StatusCode)
+			tc.verifyBody(t, body, tc.expBody)
 		})
 	}
 }
@@ -128,20 +215,27 @@ func TestHandlersGet(t *testing.T) {
 		restMethod string
 		mockMethod string
 		path       string
-		repo       []string
+		getServer  func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server
+		repoResp   []string
 		expStatus  int
 		expBody    interface{}
+		verifyBody func(t *testing.T, body []byte, expBody interface{})
 	}{
 		{
 			name:       "When getCommonStudents is called with 1 teacher request via GET method, return status code 200 and response body",
 			restMethod: http.MethodGet,
 			mockMethod: "GetCommonStudents",
 			path:       "/api/commonstudents?teacher=teacherken%40gmail.com",
-			repo: []string{
+			repoResp: []string{
 				"studentjon@gmail.com",
 				"studenthon@gmail.com",
 			},
-			expStatus: 200,
+			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
+				s := NewServer(":3000", repository)
+				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
+				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+			},
+			expStatus: http.StatusOK,
 			expBody: types.CommonStudentsResponse{
 				Students: []string{
 					"studentjon@gmail.com",
@@ -149,22 +243,126 @@ func TestHandlersGet(t *testing.T) {
 					"student_only_under_teacherken@gmail.com",
 				},
 			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody types.CommonStudentsResponse
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				expected := expBody.(types.CommonStudentsResponse)
+				assert.Equal(t, expected, respBody)
+			},
+		},
+		{
+			name:       "When getCommonStudents is called with 1 invalid teacher request via GET method, return status code 400 and error message",
+			restMethod: http.MethodGet,
+			mockMethod: "GetCommonStudents",
+			path:       "/api/commonstudents?feature=teacherken%40gmail.com",
+			repoResp: []string{
+				"studentjon@gmail.com",
+				"studenthon@gmail.com",
+			},
+			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "invalid query param",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
+			},
+		},
+		{
+			name:       "When getCommonStudents is called with 1 empty params teacher request via GET method, return status code 400 and error message",
+			restMethod: http.MethodGet,
+			mockMethod: "GetCommonStudents",
+			path:       "/api/commonstudents?teacher=",
+			repoResp: []string{
+				"studentjon@gmail.com",
+				"studenthon@gmail.com",
+			},
+			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "empty query param",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
+			},
 		},
 		{
 			name:       "When getCommonStudents is called with 2 teacher request via GET method, return status code 200 and response body",
 			restMethod: http.MethodGet,
 			mockMethod: "GetCommonStudents",
 			path:       "/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
-			repo: []string{
+			repoResp: []string{
 				"studentjon@gmail.com",
 				"studenthon@gmail.com",
 			},
-			expStatus: 200,
+			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
+				s := NewServer(":3000", repository)
+				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
+				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+			},
+			expStatus: http.StatusOK,
 			expBody: types.CommonStudentsResponse{
 				Students: []string{
 					"studentjon@gmail.com",
 					"studenthon@gmail.com",
 				},
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody types.CommonStudentsResponse
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				expected := expBody.(types.CommonStudentsResponse)
+				assert.Equal(t, expected, respBody)
+			},
+		},
+		{
+			name:       "When getCommonStudents is called with 2 invalid teacher request via GET method, return status code 200 and response body",
+			restMethod: http.MethodGet,
+			mockMethod: "GetCommonStudents",
+			path:       "/api/commonstudents?feature=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
+			repoResp: []string{
+				"studentjon@gmail.com",
+				"studenthon@gmail.com",
+			},
+			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
+				s := NewServer(":3000", repository)
+				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+			},
+			expStatus: http.StatusBadRequest,
+			expBody: ApiError{
+				Message: "invalid query param",
+			},
+			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
+				var respBody ApiError
+				err := json.Unmarshal(body, &respBody)
+				if err != nil {
+					t.Errorf("Error parsing JSON response body: %s", err)
+				}
+				contains := expBody.(ApiError)
+				assert.Contains(t, respBody.Message, contains.Message)
 			},
 		},
 	}
@@ -173,11 +371,8 @@ func TestHandlersGet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			repository := new(mocks.Repository)
 
-			repository.On(tc.mockMethod, mock.Anything).Return(tc.repo, nil)
+			server := tc.getServer(t, repository, tc.repoResp, tc.mockMethod)
 			defer repository.AssertExpectations(t)
-
-			s := NewServer(":3000", repository)
-			server := httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
 			defer server.Close()
 
 			req, err := http.NewRequest(tc.restMethod, server.URL+tc.path, nil)
@@ -194,14 +389,8 @@ func TestHandlersGet(t *testing.T) {
 				t.Errorf("Error reading response body: %s", err)
 			}
 
-			var respBody types.CommonStudentsResponse
-			err = json.Unmarshal(body, &respBody)
-			if err != nil {
-				t.Errorf("Error parsing JSON response body: %s", err)
-			}
-
 			assert.Equal(t, tc.expStatus, resp.StatusCode)
-			assert.Equal(t, tc.expBody, respBody)
+			tc.verifyBody(t, body, tc.expBody)
 		})
 	}
 }
