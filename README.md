@@ -7,6 +7,8 @@
 - [Run Locally](#run-locally) <a name="run-locally"/>   
 - [User Stories](#user-stories) <a name="user-stories"/>
 - [Database Design](#database-design) <a name="database-design"/>
+- [Assumptions](#assumptions) <a name="assumptions"/>
+- [Proposed Test Scripts](#proposed-test-scripts) <a name="proposed-test-scripts"/>
 
 <br>
 
@@ -192,6 +194,15 @@ REGISTRATIONS table & SUSPENSIONS table
 <br>
 <img width="463" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/aa60f611-0202-48c6-b137-ec33a4c85f4a">
 
-**Assumption**: A minimal database design of having only 2 tables was decided to fit user stories criteria. Therefore, Students and Teachers table were not implemented.
+
+## Assumptions
+These are the assumptions I took:
+
+### Design:
+A minimal database design of having only 2 tables was decided to fit user stories criteria. Therefore, Students and Teachers table were not implemented.
+
+### /api/retrievefornotifications:
+If a student email hasn't been registered to any teacher and is not in the database, the email will not appear even if the email is mentioned in the request body
 
 
+## Proposed Test Scripts
