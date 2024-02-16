@@ -21,6 +21,7 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 <h2>Run Locally</h2>
 
 <h3>Prerequisites</h3>
+
 - Install go 
 
 ```brew install go``` or visit https://go.dev/doc/install
@@ -50,6 +51,7 @@ make run
 ```
 
 <h3>Step 3: Connect to PostgreSQL and view data</h3>
+
 - Open up DBeaver
 
 - Click file -> new -> expand DBeaver -> click Database Connection
