@@ -66,8 +66,7 @@ make run
   - **username**: postgres
   
   - **password**: root
-  
-- 
-- click on Finish
+
+- Click on Finish
 
 - You have now successfully connected to postgres
