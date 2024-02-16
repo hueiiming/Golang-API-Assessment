@@ -6,6 +6,7 @@
 - [API Endpoints](#api-endpoints) <a name="api-endpoints"/>  
 - [Run Locally](#run-locally) <a name="run-locally"/>   
 - [User Stories](#user-stories) <a name="user-stories"/>
+- [Database Design](#database-design) <a name="database-design"/>
 
 <br>
 
@@ -20,11 +21,11 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 <br>
 
 ## API Endpoints
-- `/api/register`
-- `/api/commonstudents?teacher=teacherken%40gmail.com`
-- `/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com`
-- `/api/suspend`
-- `/api/retrievefornotifications`
+- POST `/api/register`
+- GET `/api/commonstudents?teacher=teacherken%40gmail.com`
+- GET `/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com`
+- POST `/api/suspend`
+- POST `/api/retrievefornotifications`
 
 <br>
 
@@ -44,7 +45,7 @@ ENV=local
 PORT=8080
 DB_PASSWORD=<PASSWORD>
 ```
-<small>Note: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me</small>
+**Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
 
 ### Step 1: Clone repo
 ```
@@ -185,3 +186,12 @@ For all the above API endpoints, error responses should:
 ```
 { "message": "Some meaningful error message" }
 ```
+
+## Database Design
+REGISTRATIONS table & SUSPENSIONS table
+<br>
+<img width="463" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/aa60f611-0202-48c6-b137-ec33a4c85f4a">
+
+**Assumption**: A minimal database design of having only 2 tables was decided to fit user stories criteria. Therefore, Students and Teachers table were not implemented.
+
+
