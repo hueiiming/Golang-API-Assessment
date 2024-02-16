@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Golang-API-Assessment/api"
-	"Golang-API-Assessment/repository"
+	"Golang-API-Assessment/pkg/api"
+	"Golang-API-Assessment/pkg/repository"
 	"flag"
 	"fmt"
 	"github.com/joho/godotenv"

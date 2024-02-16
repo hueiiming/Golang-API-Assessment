@@ -1,8 +1,8 @@
 package api
 
 import (
-	"Golang-API-Assessment/types"
-	"Golang-API-Assessment/utils"
+	"Golang-API-Assessment/pkg/types"
+	"Golang-API-Assessment/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -14,7 +14,7 @@ type ApiError struct {
 	Message string `json:"message"`
 }
 
-func makeHTTPHandle(f apiFunc) http.HandlerFunc {
+func MakeHTTPHandle(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
 			WriteToJSON(w, http.StatusBadRequest, ApiError{Message: "error: " + err.Error()})
@@ -22,7 +22,7 @@ func makeHTTPHandle(f apiFunc) http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("status method not allowed")
 	}
@@ -48,17 +48,15 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	return WriteToJSON(w, http.StatusNoContent, registerReq)
 }
 
-func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandleCommonStudents(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "GET" {
 		return fmt.Errorf("status method not allowed")
 	}
 
 	queryParam := r.URL.Query()
-
-	if err := hasWrongParam(queryParam); err != nil {
+	if err := utils.HasWrongParam(queryParam); err != nil {
 		return err
 	}
-
 	teachers := queryParam["teacher"]
 
 	students, err := s.repo.GetCommonStudents(teachers)
@@ -66,10 +64,12 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 		return fmt.Errorf("error getting common students: %w", err)
 	}
 
+	// return empty string slice when no students found
 	if len(students) == 0 {
 		students = []string{}
 	}
 
+	// if query param only includes 1 teacher email
 	if len(teachers) == 1 && len(students) >= 1 {
 		students = append(students, "student_only_under_"+teachers[0])
 	}
@@ -81,7 +81,7 @@ func (s *Server) handleCommonStudents(w http.ResponseWriter, r *http.Request) er
 	return WriteToJSON(w, http.StatusOK, commonStudents)
 }
 
-func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("status method not allowed")
 	}
@@ -102,7 +102,7 @@ func (s *Server) handleSuspend(w http.ResponseWriter, r *http.Request) error {
 	return WriteToJSON(w, http.StatusNoContent, nil)
 }
 
-func (s *Server) handleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("status method not allowed")
 	}
@@ -140,31 +140,4 @@ func WriteToJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
-}
-
-func removeEmptyStrings(s []string) []string {
-	var result []string
-	for _, str := range s {
-		if str != "" {
-			result = append(result, str)
-		}
-	}
-	return result
-}
-
-func hasWrongParam(queryParam map[string][]string) error {
-	for paramName := range queryParam {
-		if paramName != "teacher" {
-			return fmt.Errorf("invalid query param")
-		}
-	}
-	for _, emails := range queryParam {
-		for _, email := range emails {
-			if email == "" {
-				return fmt.Errorf("empty query param")
-			}
-		}
-	}
-
-	return nil
 }
