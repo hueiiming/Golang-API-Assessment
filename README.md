@@ -22,6 +22,12 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 
 <h3>Prerequisites</h3>
 
+- Install Homebrew for macOS or Linux 
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
 - Install go 
 
 ```brew install go``` or visit https://go.dev/doc/install
