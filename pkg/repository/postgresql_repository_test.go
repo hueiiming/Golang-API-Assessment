@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"Golang-API-Assessment/types"
+	"Golang-API-Assessment/pkg/types"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/lib/pq"
 	"testing"
@@ -15,7 +15,7 @@ func TestPostgreSQLRepository_Registration(t *testing.T) {
 	defer db.Close()
 
 	repo := &PostgreSQLRepository{
-		db: db,
+		Db: db,
 	}
 
 	// Registration SQL query was prepared once then executed twice in the loop
@@ -52,7 +52,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 	defer db.Close()
 
 	repo := &PostgreSQLRepository{
-		db: db,
+		Db: db,
 	}
 
 	// Register student & teacher
@@ -103,7 +103,7 @@ func TestPostgreSQLRepository_Suspension(t *testing.T) {
 	defer db.Close()
 
 	repo := &PostgreSQLRepository{
-		db: db,
+		Db: db,
 	}
 
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
@@ -132,7 +132,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 	defer db.Close()
 
 	repo := &PostgreSQLRepository{
-		db: db,
+		Db: db,
 	}
 
 	// Register student & teacher

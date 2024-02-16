@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"Golang-API-Assessment/types"
-	"Golang-API-Assessment/utils"
+	"Golang-API-Assessment/pkg/types"
+	"Golang-API-Assessment/pkg/utils"
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
@@ -19,7 +19,7 @@ type Repository interface {
 }
 
 type PostgreSQLRepository struct {
-	db *sql.DB
+	Db *sql.DB
 }
 
 func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
@@ -51,13 +51,13 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 	}
 
 	return &PostgreSQLRepository{
-		db: db,
+		Db: db,
 	}, nil
 }
 
 func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) error {
 	query := "INSERT INTO registrations (teacher_email, student_email) VALUES ($1, $2)"
-	stmt, err := r.db.Prepare(query)
+	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, e
 	pqTeachers := pq.StringArray(teachers)
 	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = any($1)"
 
-	stmt, err := r.db.Prepare(query)
+	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		fmt.Errorf("error preparing statement: %s", err)
 		return nil, err
@@ -104,7 +104,7 @@ func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, e
 func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
 	query := "INSERT INTO suspensions (student_email) VALUES ($1)"
 
-	stmt, err := r.db.Prepare(query)
+	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (r *PostgreSQLRepository) GetNotification(request *types.NotificationReques
 				)
 				`
 
-	stmt, err := r.db.Prepare(query)
+	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		fmt.Errorf("error preparing statement: %s", err)
 		return nil, err
@@ -177,6 +177,6 @@ func (r *PostgreSQLRepository) createTables() error {
 			 UNIQUE (student_email)
 		);
 	`
-	_, err := r.db.Exec(query)
+	_, err := r.Db.Exec(query)
 	return err
 }
