@@ -2,12 +2,12 @@ package repository
 
 import (
 	"Golang-API-Assessment/types"
+	"Golang-API-Assessment/utils"
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"os"
-	"regexp"
 )
 
 //go:generate mockery --name=Repository
@@ -42,7 +42,6 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 
 func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) error {
 	query := "INSERT INTO registrations (teacher_email, student_email) VALUES ($1, $2)"
-
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return err
@@ -104,7 +103,11 @@ func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
 }
 
 func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) ([]string, error) {
-	emails := extractEmails(request.Message)
+	emails, err := utils.ExtractEmails(request.Message)
+	if err != nil {
+		return nil, err
+	}
+
 	pqEmails := pq.StringArray(emails)
 
 	query := `SELECT DISTINCT student_email
@@ -161,12 +164,4 @@ func (r *PostgreSQLRepository) createTables() error {
 	`
 	_, err := r.db.Exec(query)
 	return err
-}
-
-func extractEmails(message string) []string {
-	pattern := `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b`
-
-	re := regexp.MustCompile(pattern)
-
-	return re.FindAllString(message, -1)
 }
