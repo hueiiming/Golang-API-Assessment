@@ -35,30 +35,30 @@ Golang-API-Assessment/
 │
 ├── pkg/                       
 │   ├── api/                   
-│   │   ├── handlers.go                    # Handles api endpoints
-│   │   └── handlers_test.go               # Handlers unit test
-│   │   └── server.go                      # Start the server
+│   │   ├── handlers.go                     # Handles api endpoints
+│   │   └── handlers_test.go                # Handlers unit test
+│   │   └── server.go                       # Start the server
 │   │
-│   └── repository/                        # Database
+│   └── repository/                         # Database
 │   │   ├── mocks/
-│   │   │   └── Repository.go              # mockery file for unit test
+│   │   │   └── Repository.go               # mockery file for unit test
 │   │   │       
-│   │   ├── postgresql_repository.go       # Database methods
-│   │   └── postgresql_repository_test.go  # Database test
-│   │   └── repository.go                  # Interface for database methods
+│   │   ├── postgresql_repository.go        # Database methods
+│   │   └── postgresql_repository_test.go   # Database test
+│   │   └── repository.go                   # Interface for database methods
 │   │
-│   └── types/                             # Common structs
+│   └── types/                              # Common structs
 │   │   ├── requests.go                    
 │   │   └── response.go
 │   │
-│   └── utils/                             # Helper methods    
-│       ├── utils.go   
+│   └── utils/                             
+│       ├── utils.go                        # Helper methods    
 │
 ├── postman/                   
 │   ├── local.postman_collection.json       # postman collection to import for local test
 │   └── production.postman_collection.json  # postman collection to import for prod test
 │
-├── .env                                   # Will be provided by me
+├── .env                                    # Will be provided by me
 ├── .gitignore
 ├── go.mod
 ├── go.sum
