@@ -32,6 +32,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"teachers\":\n    [\n        \"teacherken@gmail.com\",\n        \"teacherjoe@gmail.com\",\n        \"teachermax@gmail.com\"\n    ],\n    \"students\":\n    [\n        \"studentjon@gmail.com\",\n        \"studenthon@gmail.com\",\n        \"studentmay@gmail.com\",\n        \"studentagnes@gmail.com\",\n        \"studentmiche@gmail.com\",\n        \"studentbob@gmail.com\",\n        \"studentbad@gmail.com\",\n        \"studentmary@gmail.com\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/populatetestdata",
 					"protocol": "https",
@@ -63,12 +72,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/register",
-					"protocol": "http",
+					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/register",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"golang-api-assessment-hueiiming",
+						"onrender",
+						"com"
 					],
-					"port": "3000",
 					"path": [
 						"api",
 						"register"
@@ -83,12 +93,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/commonstudents?teacher=teacherken%40gmail.com",
-					"protocol": "http",
+					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"golang-api-assessment-hueiiming",
+						"onrender",
+						"com"
 					],
-					"port": "3000",
 					"path": [
 						"api",
 						"commonstudents"
@@ -121,12 +132,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
-					"protocol": "http",
+					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"golang-api-assessment-hueiiming",
+						"onrender",
+						"com"
 					],
-					"port": "3000",
 					"path": [
 						"api",
 						"commonstudents"
@@ -152,7 +164,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"student\" : \"studentmary@gmail.com\"\n}\n",
+					"raw": "{\n  \"student\" : \"studentjon@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -160,12 +172,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/suspend",
-					"protocol": "http",
+					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/suspend",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"golang-api-assessment-hueiiming",
+						"onrender",
+						"com"
 					],
-					"port": "3000",
 					"path": [
 						"api",
 						"suspend"
@@ -181,7 +194,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"teacher\":  \"teacherken3@gmail.com\",\n  \"notification\": \"Hello students!\"\n}\n",
+					"raw": "{\n  \"teacher\":  \"teacherken@gmail.com\",\n  \"notification\": \"Hello students! @studentagnes@gmail.com @studentmiche@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -189,12 +202,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/retrievefornotifications",
-					"protocol": "http",
+					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/retrievefornotifications",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"golang-api-assessment-hueiiming",
+						"onrender",
+						"com"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"retrievefornotifications"
