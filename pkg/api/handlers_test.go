@@ -108,7 +108,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
-				Message: "error: invalid request",
+				Message: "error: missing student request",
 			},
 			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
 				var respBody ApiError
@@ -166,7 +166,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
-				Message: "error: invalid request",
+				Message: "error: invalid teacher or notification request",
 			},
 			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
 				var respBody ApiError
