@@ -286,7 +286,7 @@ different database implementations without affecting the higher-level applicatio
 
 ## Unit Tests
 Unit tests are being executed on every Pull Request or Push to main branch using Github Actions
-  - handlers_test.go (Follows a table-driven test to be more descriptive and easy to understand. mockery )
+  - handlers_test.go (Follows a table-driven test to be more descriptive and easy to understand. mockery was used to mock database interface)
   - postgresql_repository_test.go (Uses sqlmock library `"github.com/DATA-DOG/go-sqlmock"`, without needing a real database connection)
   ### Run tests locally:
   ```
