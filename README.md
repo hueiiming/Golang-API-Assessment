@@ -22,6 +22,45 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 
 <br>
 
+## Project Structure
+```bash
+Golang-API-Assessment/
+│
+│── .github/
+│   └── workflows
+│      └── ci.yml                          # Run unit tests in Github CI
+│
+├── cmd/                   
+│   └── main.go                            # main app to run
+│
+├── pkg/                       
+│   ├── api/                   
+│   │   ├── handlers.go                    # Handles api endpoints
+│   │   └── handlers_test.go               # Handlers unit test
+│   │   └── server.go                      # Start the server
+│   │
+│   └── repository/                        # Database
+│   │   ├── postgresql_repository.go       # Database methods
+│   │   └── postgresql_repository_test.go  # Database test
+│   │   └── repository.go                  # Interface for database methods
+│   │
+│   └── types/                             # Common structs
+│   │   ├── requests.go                    
+│   │   └── response.go
+│   │
+│   └── utils/                             # Helper methods    
+│       ├── utils.go   
+│
+├── .env                                   # Will be provided by me
+├── .gitignore
+├── go.mod
+├── go.sum
+├── Makefile
+├── README.md
+```
+
+<br>
+
 ## API Endpoints
 - POST `/api/register`
   - Headers: Content-Type: application/json
@@ -105,45 +144,6 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
   - `"message": "error: invalid student email"`
   - `"message": "error: missing student request"`
   - `"message": "error: invalid teacher or notification request"`
-
-<br>
-
-## Project Structure
-```bash
-Golang-API-Assessment/
-│
-│── .github/
-│   └── workflows
-│   │   ├──ci.yml                          # Run unit tests in Github CI
-│
-├── cmd/                   
-│   └── main.go                            # main app to run
-│
-├── pkg/                       
-│   ├── api/                   
-│   │   ├── handlers.go                    # Handles api endpoints
-│   │   └── handlers_test.go               # Handlers unit test
-│   │   └── server.go                      # Start the server
-│   │
-│   └── repository/                        # Database
-│   │   ├── postgresql_repository.go       # Database methods
-│   │   └── postgresql_repository_test.go  # Database test
-│   │   └── repository.go                  # Interface for database methods
-│   │
-│   └── types/                             # Common structs
-│   │   ├── requests.go                    
-│   │   └── response.go
-│   │
-│   └── utils/                             # Helper methods    
-│       ├── utils.go   
-│
-├── .env                                   # Will be provided by me
-├── .gitignore
-├── go.mod
-├── go.sum
-├── Makefile
-├── README.md
-```
 
 <br>
 
