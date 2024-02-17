@@ -173,6 +173,7 @@ Golang-API-Assessment/
   - `"message": "error: invalid student email"`
   - `"message": "error: missing student request"`
   - `"message": "error: invalid teacher or notification request"`
+  - `"message": "error: teacher with email teacherkesn@gmail.com not found"`
 
 <br>
 
