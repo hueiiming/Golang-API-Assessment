@@ -161,8 +161,8 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		WillReturnRows(rows)
 
 	notifRequest := &types.NotificationRequest{
-		Teacher: "teacherken@gmail.com",
-		Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
+		Teacher:      "teacherken@gmail.com",
+		Notification: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
 	}
 
 	_, err = repo.GetNotification(notifRequest)

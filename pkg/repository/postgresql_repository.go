@@ -130,7 +130,7 @@ func (r *PostgreSQLRepository) Suspension(studentID int) error {
 }
 
 func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) ([]string, error) {
-	emails, err := utils.ExtractEmails(request.Message)
+	emails, err := utils.ExtractEmails(request.Notification)
 	if err != nil {
 		return nil, err
 	}

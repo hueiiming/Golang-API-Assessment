@@ -102,6 +102,7 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("error decoding JSON request: %w", err)
 	}
 
+	// Missing student request
 	if suspendReq.Student == "" {
 		return fmt.Errorf("invalid request")
 	}
@@ -128,7 +129,8 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 		return fmt.Errorf("error decoding JSON request: %w", err)
 	}
 
-	if notifReq.Teacher == "" || notifReq.Message == "" {
+	// Missing teacher or notification message
+	if notifReq.Teacher == "" || notifReq.Notification == "" {
 		return fmt.Errorf("invalid request")
 	}
 
