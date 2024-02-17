@@ -1,8 +1,8 @@
 package api
 
 import (
-	"Golang-API-Assessment/repository/mocks"
-	"Golang-API-Assessment/types"
+	"Golang-API-Assessment/pkg/repository/mocks"
+	"Golang-API-Assessment/pkg/types"
 	"bytes"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestHandlersPost(t *testing.T) {
 		verifyBody func(t *testing.T, body []byte, expBody interface{})
 	}{
 		{
-			name:       "When handleRegister is called with correct request via POST method, return status code 204",
+			name:       "When HandleRegister is called with correct request via POST method, return status code 204",
 			restMethod: http.MethodPost,
 			mockMethod: "Registration",
 			path:       "/api/register",
@@ -39,15 +39,18 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				repository.On(mockMethod, request).Once().Return(nil)
-				return httptest.NewServer(makeHTTPHandle(s.handleRegister))
+				repository.On("GetTeacherID", mock.Anything).Once().Return(1, nil)
+				repository.On("GetStudentID", mock.Anything).Once().Return(1, nil)
+				repository.On("GetStudentID", mock.Anything).Once().Return(2, nil)
+				repository.On(mockMethod, mock.Anything, mock.Anything).Once().Return(nil)
+				return httptest.NewServer(MakeHTTPHandle(s.HandleRegister))
 			},
 			expStatus:  http.StatusNoContent,
 			expBody:    nil,
 			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {},
 		},
 		{
-			name:       "When handleRegister is called with wrong request via POST method, return status code 400 with error message",
+			name:       "When HandleRegister is called with wrong request via POST method, return status code 400 with error message",
 			restMethod: http.MethodPost,
 			mockMethod: "Registration",
 			path:       "/api/register",
@@ -59,7 +62,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleRegister))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleRegister))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
@@ -76,7 +79,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 		},
 		{
-			name:       "When handleSuspend is called with correct request via POST method, return status code 204",
+			name:       "When HandleSuspend is called with correct request via POST method, return status code 204",
 			restMethod: http.MethodPost,
 			mockMethod: "Suspension",
 			path:       "/api/suspend",
@@ -85,22 +88,23 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				repository.On(mockMethod, request).Once().Return(nil)
-				return httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+				repository.On("GetStudentID", mock.Anything).Once().Return(1, nil)
+				repository.On(mockMethod, mock.Anything).Once().Return(nil)
+				return httptest.NewServer(MakeHTTPHandle(s.HandleSuspend))
 			},
 			expStatus:  http.StatusNoContent,
 			expBody:    nil,
 			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {},
 		},
 		{
-			name:       "When handleSuspend is called with wrong request via POST method, return status code 400 with error message",
+			name:       "When HandleSuspend is called with wrong request via POST method, return status code 400 with error message",
 			restMethod: http.MethodPost,
 			mockMethod: "Suspension",
 			path:       "/api/suspend",
 			request:    &types.SuspendRequest{},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleSuspend))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleSuspend))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
@@ -117,19 +121,19 @@ func TestHandlersPost(t *testing.T) {
 			},
 		},
 		{
-			name:       "When handleNotification is called with correct request via POST method, return status code 204 and recipients body",
+			name:       "When HandleNotification is called with correct request via POST method, return status code 204 and recipients body",
 			restMethod: http.MethodPost,
 			mockMethod: "GetNotification",
 			path:       "/api/retrievefornotifications",
 			request: &types.NotificationRequest{
-				Teacher: "teacherken@gmail.com",
-				Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
+				Teacher:      "teacherken@gmail.com",
+				Notification: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
 				repository.On(mockMethod, request).Once().Return([]string{
 					"studenthon@gmail.com", "studentjon@gmail.com"}, nil)
-				return httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleRetrieveNotifications))
 			},
 			expStatus: http.StatusOK,
 			expBody: types.NotificationResponse{
@@ -149,7 +153,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 		},
 		{
-			name:       "When handleNotification is called with wrong request via POST method, return status code 400 and error message",
+			name:       "When HandleNotification is called with wrong request via POST method, return status code 400 and error message",
 			restMethod: http.MethodPost,
 			mockMethod: "GetNotification",
 			path:       "/api/retrievefornotifications",
@@ -158,7 +162,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleRetrieveNotifications))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleRetrieveNotifications))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
@@ -233,7 +237,7 @@ func TestHandlersGet(t *testing.T) {
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
 				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
-				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
 			expStatus: http.StatusOK,
 			expBody: types.CommonStudentsResponse{
@@ -264,7 +268,7 @@ func TestHandlersGet(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
@@ -291,7 +295,7 @@ func TestHandlersGet(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
@@ -319,7 +323,7 @@ func TestHandlersGet(t *testing.T) {
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
 				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
-				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
 			expStatus: http.StatusOK,
 			expBody: types.CommonStudentsResponse{
@@ -349,7 +353,7 @@ func TestHandlersGet(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
-				return httptest.NewServer(makeHTTPHandle(s.handleCommonStudents))
+				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
