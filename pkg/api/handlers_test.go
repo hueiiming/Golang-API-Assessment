@@ -131,6 +131,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
+				repository.On("GetTeacherID", "teacherken@gmail.com").Once().Return(1, nil)
 				repository.On(mockMethod, request).Once().Return([]string{
 					"studenthon@gmail.com", "studentjon@gmail.com"}, nil)
 				return httptest.NewServer(MakeHTTPHandle(s.HandleRetrieveNotifications))
@@ -236,6 +237,7 @@ func TestHandlersGet(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
+				repository.On("GetTeacherID", "teacherken@gmail.com").Once().Return(1, nil)
 				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
 				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},
@@ -322,6 +324,7 @@ func TestHandlersGet(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, repoResp []string, mockMethod string) *httptest.Server {
 				s := NewServer(":3000", repository)
+				repository.On("GetTeacherID", mock.Anything).Return(1, nil)
 				repository.On(mockMethod, mock.Anything).Return(repoResp, nil)
 				return httptest.NewServer(MakeHTTPHandle(s.HandleCommonStudents))
 			},

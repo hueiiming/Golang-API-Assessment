@@ -107,13 +107,13 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("error decoding JSON request: %w", err)
 	}
 
-	if isEmailValid, err := utils.IsValidEmail(suspendReq.Student); err != nil || !isEmailValid {
-		return fmt.Errorf("invalid student email: %w", err)
-	}
-
 	// Missing student request
 	if suspendReq.Student == "" {
 		return fmt.Errorf("missing student request")
+	}
+
+	if isEmailValid, err := utils.IsValidEmail(suspendReq.Student); err != nil || !isEmailValid {
+		return fmt.Errorf("invalid student email: %w", err)
 	}
 
 	studentID, err := s.repo.GetStudentID(suspendReq.Student)
