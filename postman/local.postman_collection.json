@@ -70,12 +70,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/register",
+					"raw": "http://localhost:8080/api/register",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "8080",
 					"path": [
 						"api",
 						"register"
@@ -90,12 +90,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/commonstudents?teacher=teacherken%40gmail.com",
+					"raw": "http://localhost:8080/api/commonstudents?teacher=teacherken%40gmail.com",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "8080",
 					"path": [
 						"api",
 						"commonstudents"
@@ -128,12 +128,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
+					"raw": "http://localhost:8080/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "8080",
 					"path": [
 						"api",
 						"commonstudents"
@@ -159,7 +159,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"student\" : \"studentmary@gmail.com\"\n}\n",
+					"raw": "{\n  \"student\" : \"studentjon@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -167,12 +167,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/suspend",
+					"raw": "http://localhost:8080/api/suspend",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "8080",
 					"path": [
 						"api",
 						"suspend"
@@ -188,7 +188,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"teacher\":  \"teacherken3@gmail.com\",\n  \"notification\": \"Hello students!\"\n}\n",
+					"raw": "{\n  \"teacher\":  \"teacherken@gmail.com\",\n  \"notification\": \"Hello students! @studentagnes@gmail.com @studentmiche@gmail.com\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
