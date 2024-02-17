@@ -40,6 +40,9 @@ Golang-API-Assessment/
 │   │   └── server.go                      # Start the server
 │   │
 │   └── repository/                        # Database
+│   │   ├── mocks/
+│   │   │   └── Repository.go              # mockery file for unit test
+│   │   │       
 │   │   ├── postgresql_repository.go       # Database methods
 │   │   └── postgresql_repository_test.go  # Database test
 │   │   └── repository.go                  # Interface for database methods
@@ -56,7 +59,7 @@ Golang-API-Assessment/
 ├── go.mod
 ├── go.sum
 ├── Makefile
-├── README.md
+└── README.md
 ```
 
 <br>
@@ -224,6 +227,8 @@ different database implementations without affecting the higher-level applicatio
 ```
 - Install go 
 ```brew install go``` or visit https://go.dev/doc/install
+- Install mockery 
+```brew install mockery``` or visit https://go.dev/doc/install
 - Install DBeaver https://dbeaver.io/download/ or any other database that supports PostgreSQL
 - Include `.env` file in the root folder **Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
   - `ENV=local` for running application in local machine
@@ -281,7 +286,7 @@ different database implementations without affecting the higher-level applicatio
 
 ## Unit Tests
 Unit tests are being executed on every Pull Request or Push to main branch using Github Actions
-  - handlers_test.go (Follows a table-driven test, to be more descriptive and easy to understand)
+  - handlers_test.go (Follows a table-driven test to be more descriptive and easy to understand. mockery )
   - postgresql_repository_test.go (Uses sqlmock library `"github.com/DATA-DOG/go-sqlmock"`, without needing a real database connection)
   ### Run tests locally:
   ```
