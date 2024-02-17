@@ -15,6 +15,11 @@ type ApiError struct {
 	Message string `json:"message"`
 }
 
+const (
+	HttpMethodGet  = "GET"
+	HttpMethodPost = "POST"
+)
+
 func MakeHTTPHandle(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
@@ -24,8 +29,8 @@ func MakeHTTPHandle(f apiFunc) http.HandlerFunc {
 }
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodPost); err != nil {
+		return err
 	}
 
 	registerReq := types.RegisterRequest{}
@@ -60,8 +65,8 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *Server) HandleCommonStudents(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "GET" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodGet); err != nil {
+		return err
 	}
 
 	queryParam := r.URL.Query()
@@ -93,8 +98,8 @@ func (s *Server) HandleCommonStudents(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodPost); err != nil {
+		return err
 	}
 
 	suspendReq := types.SuspendRequest{}
@@ -104,7 +109,7 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 
 	// Missing student request
 	if suspendReq.Student == "" {
-		return fmt.Errorf("invalid request")
+		return fmt.Errorf("missing student request")
 	}
 
 	studentID, err := s.repo.GetStudentID(suspendReq.Student)
@@ -120,8 +125,8 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodPost); err != nil {
+		return err
 	}
 
 	notifReq := types.NotificationRequest{}
@@ -131,7 +136,7 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 
 	// Missing teacher or notification message
 	if notifReq.Teacher == "" || notifReq.Notification == "" {
-		return fmt.Errorf("invalid request")
+		return fmt.Errorf("invalid teacher or notification request")
 	}
 
 	if isEmailValid, err := utils.IsValidEmail(notifReq.Teacher); err != nil || !isEmailValid {
@@ -155,11 +160,25 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 }
 
 func (s *Server) HandlePopulateStudentsAndTeachers(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodPost); err != nil {
+		return err
 	}
 
-	if err := s.repo.PopulateTables(); err != nil {
+	bulkImportReq := types.BulkImportRequest{}
+
+	if err := json.NewDecoder(r.Body).Decode(&bulkImportReq); err != nil {
+		return fmt.Errorf("error decoding JSON request: %w", err)
+	}
+
+	if areEmailsValid, err := utils.AreValidEmails(bulkImportReq.Teachers); err != nil || !areEmailsValid {
+		return fmt.Errorf("invalid teacher email: %w", err)
+	}
+
+	if areEmailsValid, err := utils.AreValidEmails(bulkImportReq.Students); err != nil || !areEmailsValid {
+		return fmt.Errorf("invalid student email: %w", err)
+	}
+
+	if err := s.repo.PopulateTables(bulkImportReq.Teachers, bulkImportReq.Students); err != nil {
 		return err
 	}
 
@@ -167,8 +186,8 @@ func (s *Server) HandlePopulateStudentsAndTeachers(w http.ResponseWriter, r *htt
 }
 
 func (s *Server) HandleClearDatabase(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("status method not allowed")
+	if err := isCorrectRequestMethod(r, HttpMethodPost); err != nil {
+		return err
 	}
 
 	if err := s.repo.ClearTables(); err != nil {
@@ -194,4 +213,11 @@ func WriteToJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
+}
+
+func isCorrectRequestMethod(r *http.Request, method string) error {
+	if r.Method != method {
+		return fmt.Errorf("status method not allowed")
+	}
+	return nil
 }
