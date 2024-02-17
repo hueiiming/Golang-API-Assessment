@@ -19,7 +19,9 @@ Backend application that will be part of a system which teachers can use to perf
 <br>
 
 ## Deployed API
-URL: https://golang-api-assessment-hueiiming.onrender.com
+- URL: https://golang-api-assessment-hueiiming.onrender.com
+- Hosted service on https://render.com
+- Hosted database on https://supabase.com
 
 <br>
 
