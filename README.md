@@ -138,6 +138,28 @@ Golang-API-Assessment/
 - POST `/api/populatestudentsandteachers`
   - Headers: Content-Type: application/json
   - Success response status: HTTP 204
+  - Request body example:
+  ```
+  {
+    "teachers":
+    [
+        "teacherken@gmail.com",
+        "teacherjoe@gmail.com",
+        "teachermax@gmail.com"
+    ],
+    "students":
+    [
+        "studentjon@gmail.com",
+        "studenthon@gmail.com",
+        "studentmay@gmail.com",
+        "studentagnes@gmail.com",
+        "studentmiche@gmail.com",
+        "studentbob@gmail.com",
+        "studentbad@gmail.com",
+        "studentmary@gmail.com"
+    ]
+  }
+  ```
 - POST `/api/cleardatabase`
   - Headers: Content-Type: application/json
   - Success response status: HTTP 204
