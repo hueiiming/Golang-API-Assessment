@@ -21,7 +21,7 @@ func main() {
 		port = "8080"
 	}
 
-	listenAddr := flag.String("port", ":"+port, "server address")
+	listenAddr := flag.String("port", "0.0.0.0:"+port, "server address")
 	flag.Parse()
 	repo, err := repository.NewPostgreSQLRepository()
 	if err != nil {

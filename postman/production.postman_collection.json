@@ -12,10 +12,10 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/cleartestdata",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/cleartestdata",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -42,10 +42,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/populatetestdata",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/populatetestdata",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -72,10 +72,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/register",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/register",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -93,10 +93,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -132,10 +132,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -172,10 +172,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/suspend",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/suspend",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
@@ -202,10 +202,10 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiiming.onrender.com/api/retrievefornotifications",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/retrievefornotifications",
 					"protocol": "https",
 					"host": [
-						"golang-api-assessment-hueiiming",
+						"golang-api-assessment-hueiming",
 						"onrender",
 						"com"
 					],
