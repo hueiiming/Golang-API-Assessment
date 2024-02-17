@@ -2,10 +2,11 @@
 
 ## Table of Contents  
 - [About](#about) <a name="about"/>  
-- [Deployed API](#deployed-api) <a name="deployed-api"/>  
-- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
+- [Deployed API](#deployed-api) <a name="deployed-api"/>
 - [Project Structure](#project-structure) <a name="project-structure"/>
+- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
 - [Design Decisions](#design-decisions) <a name="design-decisions"/>
+- [Git Workflow Practices](#git-workflow-practices) <a name="git-workflow-practices"/>
 - [Setup (Local & Production)](#setup-(local-&-production)) <a name="setup-(local-&-production)"/>
 - [Unit Tests](#unit-tests) <a name="unit-tests"/>
 - [Proposed Testing Sequence](#proposed-testing-sequence) <a name="proposed-testing-sequence"/>
@@ -18,7 +19,9 @@ Backend application that will be part of a system which teachers can use to perf
 <br>
 
 ## Deployed API
-URL: https://golang-api-assessment-hueiiming.onrender.com
+- URL: https://golang-api-assessment-hueiiming.onrender.com
+- Hosted service on https://render.com
+- Hosted database on https://supabase.com
 
 <br>
 
@@ -173,6 +176,7 @@ Golang-API-Assessment/
   - `"message": "error: invalid student email"`
   - `"message": "error: missing student request"`
   - `"message": "error: invalid teacher or notification request"`
+  - `"message": "error: teacher with email teacherkesn@gmail.com not found"`
 
 <br>
 
@@ -244,6 +248,17 @@ different database implementations without affecting the higher-level applicatio
   
 <br>
 
+## Git Workflow Practices
+Throughout this project, I have been adhering to the git workflow best practices by:
+- Branching out for every code change such as new features/bug fixes
+- Creating Pull Requests (PR) before merging into the main branch
+- Squash and Merge PRs to keep the main branch commits clean
+- Keeping the main branch stable at all times
+- Committing frequently with descriptive messages
+- Integrated CI testing using GitHub Actions to ensure every PR passes before merging into the main branch
+
+<br>
+
 ## Setup (Local & Production)
 
 ### Prerequisites
@@ -251,18 +266,19 @@ different database implementations without affecting the higher-level applicatio
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-- Install go 
+- Install go <br>
 ```brew install go``` or visit https://go.dev/doc/install
-- Install mockery 
+- Install mockery <br>
 ```brew install mockery``` or visit https://go.dev/doc/install
-- Install DBeaver https://dbeaver.io/download/ or any other database that supports PostgreSQL
+- Install DBeaver <br>
+  https://dbeaver.io/download/ or any other database that supports PostgreSQL
 - Include `.env` file in the root folder **Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
   - `ENV=local` for running application in local machine
   - `ENV=prod` for running application in production
   ```
-  ENV=local
-  PORT=8080
-  DB_PASSWORD=<PASSWORD>
+  ENV=local     # can be set to local or prod
+  PORT=8080     # local port
+  DB_PASSWORD=<PASSWORD> # DB password for prod (can ignore if running on local machine)
   ```
 
 ### Run Locally
@@ -322,7 +338,7 @@ Unit tests are being executed on every Pull Request or Push to main branch using
 <br><br>
 
 ## Proposed Testing Sequence
-Recommended Postman collections are included in `postman` folder
+Recommended Postman collections are included in `postman` folder to import
 1. Clear all database tables to start a new testing scenario using POST `/api/cleardatabase`
 2. Populate students and teachers database tables using POST `/api/populatestudentsandteachers`
 3. Feel free to test any of the other 4 main endpoints (Note: Registration table and Suspension table are currently empty at this step)
