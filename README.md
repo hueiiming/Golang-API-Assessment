@@ -3,17 +3,16 @@
 ## Table of Contents  
 - [About](#about) <a name="about"/>  
 - [Deployed API](#deployed-api) <a name="deployed-api"/>  
-- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>  
+- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
+- [Design Decisions](#design-decisions) <a name="design-decisions"/>
 - [Run Locally](#run-locally) <a name="run-locally"/>   
-- [User Stories](#user-stories) <a name="user-stories"/>
 - [Database Design](#database-design) <a name="database-design"/>
-- [Assumptions](#assumptions) <a name="assumptions"/>
-- [Proposed Test Scripts](#proposed-test-scripts) <a name="proposed-test-scripts"/>
+- [Proposed Testing Sequence](#proposed-testing-sequence) <a name="proposed-testing-sequence"/>
 
 <br>
 
 ## About
-Backend application that will be part of a system which teachers can use to perform administrative functions for their students. Teachers and students are identified by their email addresses.
+Backend application that will be part of a system which teachers can use to perform administrative functions for their students. Teachers and students are identified by their email addresses. Assessment instructions are located [here](https://docs.google.com/document/d/1X0DwX8pSb4XnVwUMRPb9KRMdO61N0ots/edit?usp=sharing&ouid=112691497186686761815&rtpof=true&sd=true).
 
 <br>
 
@@ -24,11 +23,154 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 
 ## API Endpoints
 - POST `/api/register`
-- GET `/api/commonstudents?teacher=teacherken%40gmail.com`
-- GET `/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com`
+  - Headers: Content-Type: application/json
+  - Success Response status: HTTP 204
+  - Request body example:
+  ```
+  {
+    "teacher": "teacherken@gmail.com"
+    "students":
+      [
+        "studentjon@gmail.com",
+        "studenthon@gmail.com"
+      ]
+  }
+  ```
+- GET `/api/commonstudents`
+  - Success response status: HTTP 200
+  - Request example 1: GET `/api/commonstudents?teacher=teacherken%40gmail.com`
+  - Success body example:
+  ```
+  {
+    "students" :
+      [
+        "commonstudent1@gmail.com", 
+        "commonstudent2@gmail.com",
+        "student_only_under_teacher_ken@gmail.com"
+      ]
+  }
+  ```
+  - Request example 2: GET `/api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com`
+  - Success body example:
+  ```
+  {
+    "students" :
+      [
+        "commonstudent1@gmail.com", 
+        "commonstudent2@gmail.com"
+      ]
+  }
+  ```
 - POST `/api/suspend`
+  - Headers: Content-Type: application/json
+  - Success Response status: HTTP 204
+  - Request body example:
+  ```
+  {
+    "student": "studentmary@gmail.com"
+  }
+  
+  ```
 - POST `/api/retrievefornotifications`
+  - Headers: Content-Type: application/json
+  - Success response status: HTTP 200
+  - Request body example:
+  ```
+  {
+    "teacher":  "teacherken@gmail.com",
+    "notification": "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com"
+  }
+  ```
+   - Success response body:
+  ```
+  {
+    "recipients":
+      [
+        "studentbob@gmail.com",
+        "studentagnes@gmail.com", 
+        "studentmiche@gmail.com"
+      ]   
+  }
+  ```
+- POST `/api/populatestudentsandteachers`
+  - Headers: Content-Type: application/json
+  - Success response status: HTTP 204
+- POST `/api/cleardatabase`
+  - Headers: Content-Type: application/json
+  - Success response status: HTTP 204
 
+<br>
+
+## Design Decisions
+
+- ### Database Design
+  - #### Entity Relationship Diagram
+    <img width="717" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/c700bb27-afda-4e9e-bff3-2f4d8e539272">
+  
+    - A teacher registers zero or many students
+    - A student is registered by zero or many teachers
+    - A teacher suspends zero or many students
+    - A student is suspended by zero or 1 teacher
+    
+    ##### Assumptions:
+    - A student can only be suspended by 1 teacher as teacher_email is not recorded when suspending a student
+    - A teacher can suspend multiple different students
+
+- ### Design Principles
+  - #### SOLID
+    - Single Responsibility Principle (SRP)
+      <br>
+      Each structs only has 1 responsibility
+      
+      ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/4e08d7e7-e792-477a-ad0c-3ab1c2d03d79)
+    
+    - Open-Closed Principle (OCP)
+      <br>
+      I have implemented the `Repository` interface that allows for easy extension by implementing new methods without modifying existing ones.
+
+      ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/b03b3fff-cdaf-4e11-9854-1f3b254b8fca)
+
+    - Interface Segregation Principle (ISP)
+      <br>
+      Repository interface follows ISP with methods that are specific to the needs of the consumer. Each method serves a distinct purpose and is small and specific.
+    - Dependency Inversion Principle (DIP)
+      <br>
+      I have implemented Server struct to depend on the Repository interface instead of a specific database implementation. This allows for flexibility in swapping out
+different database implementations without affecting the higher-level application logic where they rely on abstractions.
+
+      ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/32ac2927-14e4-4800-86c0-22243113367e)
+
+  - #### Don't Repeat Yourself (DRY)
+    I have implemented my code based on the DRY principle, for example,
+    - `MakeHTTPHandle` in `handlers.go` is wrapped around all of the handlers method, ensuring consistent error handling without repeating the error response logic in each handler.
+    - `WriteToJSON` in `handlers.go` is used in all of the handlers method, ensuring consistent handling of writing JSON responses to the user.
+
+- ### Design Patterns
+  - #### Factory
+    I've tried to design my code based on the Factory pattern to allow more flexibility and scalability. For example:
+    <br>
+    `repository.go` provides a common interface for different databases to implement its methods. In my code, I have used `postgresql_repository.go` to implement these `Repository` methods but if I wish to use other databases, I can simply make use of this interface to implement the common methods and also write new methods specific to the new instance.
+    
+    ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/61d3fb6d-f6ea-46f4-9c96-d618e2eef981)
+    
+    This can be further seen with `main.go` initializing a new `PostgreSQLRepository` and passing it into `NewServer` at `server.go`, where `PostgreSQLRepository` is seen implementing the `Repository` interface.
+    <br>
+    
+    **main.go**
+    
+    ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/9dff6f15-e5cf-4bcb-9210-256a5cfe683b)
+    
+    **server.go**
+    
+    ![image](https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/aec5e8ab-acba-4083-8bf1-c01dfbff501e)
+
+    
+    Therefore, this fulfills the Factory pattern that defines providing an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created.
+
+
+
+
+  
 <br>
 
 ## Run Locally
@@ -76,133 +218,7 @@ make run
 
 <br><br>
 
-## User Stories
-1. As a teacher, I want to register one or more students to a specified teacher.
-A teacher can register multiple students. A student can also be registered to multiple teachers.
-- Endpoint: POST /api/register
-- Headers: Content-Type: application/json
-- Success response status: HTTP 204
-- Request body example:
-```
-{
-  "teacher": "teacherken@gmail.com"
-  "students":
-    [
-      "studentjon@gmail.com",
-      "studenthon@gmail.com"
-    ]
-}
-```
-
-2. As a teacher, I want to retrieve a list of students common to a given list of teachers (i.e. retrieve students who are registered to ALL of the given teachers).
--	Endpoint: GET /api/commonstudents
--	Success response status: HTTP 200
--	Request example 1: GET /api/commonstudents?teacher=teacherken%40gmail.com
--	Success response body 1:
-```
-{
-  "students" :
-    [
-      "commonstudent1@gmail.com", 
-      "commonstudent2@gmail.com",
-      "student_only_under_teacher_ken@gmail.com"
-    ]
-}
-```
--	Request example 2: GET /api/commonstudents?teacher=teacherken%40gmail.com&teacher=teacherjoe%40gmail.com
--	Success response body 2:
-```
-{
-  "students" :
-    [
-      "commonstudent1@gmail.com", 
-      "commonstudent2@gmail.com"
-    ]
-}
-```
-
-3. As a teacher, I want to suspend a specified student.
--	Endpoint: POST /api/suspend
--	Headers: Content-Type: application/json
--	Success response status: HTTP 204
--	Request body example:
-```
-{
-  "student" : "studentmary@gmail.com"
-}
-```
-
-4. As a teacher, I want to retrieve a list of students who can receive a given notification.
-- A notification consists of:
-  -	the teacher who is sending the notification, and
-  -	the text of the notification itself.
-- To receive notifications from e.g. 'teacherken@gmail.com', a student:
-  -	MUST NOT be suspended,
-  -	AND MUST fulfill AT LEAST ONE of the following:
-    - is registered with “teacherken@gmail.com"
-    -	has been @mentioned in the notification
-- The list of students retrieved should not contain any duplicates/repetitions.
-  -	Endpoint: POST /api/retrievefornotifications
-  -	Headers: Content-Type: application/json
-  -	Success response status: HTTP 200
-  -	Request body example 1:
-```
-{
-  "teacher":  "teacherken@gmail.com",
-  "notification": "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com"
-}
-```
-  -	Success response body 1:
-```
-{
-  "recipients":
-    [
-      "studentbob@gmail.com",
-      "studentagnes@gmail.com", 
-      "studentmiche@gmail.com"
-    ]   
-}
-```
-In the example above, studentagnes@gmail.com and studentmiche@gmail.com can receive the notification from teacherken@gmail.com, regardless whether they are registered to him, because they are @mentioned in the notification text. studentbob@gmail.com however, has to be registered to teacherken@gmail.com.
-  -	Request body example 2:
-```
-{
-  "teacher":  "teacherken@gmail.com",
-  "notification": "Hey everybody"
-}
-```
-  -	Success response body 2:
-```
-{
-  "recipients":
-    [
-      "studentbob@gmail.com"
-    ]   
-}
-```
-
-### Error Responses
-For all the above API endpoints, error responses should:
--	have an appropriate HTTP response code
--	have a JSON response body containing a meaningful error message:
-```
-{ "message": "Some meaningful error message" }
-```
-
-## Database Design
-REGISTRATIONS table & SUSPENSIONS table
-<br>
-<img width="463" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/aa60f611-0202-48c6-b137-ec33a4c85f4a">
-
-
-## Assumptions
-These are the assumptions I took:
-
-### Design:
-A minimal database design of having only 2 tables was decided to fit user stories criteria. Therefore, Students and Teachers table were not implemented.
-
-### /api/retrievefornotifications:
-If a student email hasn't been registered to any teacher and is not in the database, the email will not appear even if the email is mentioned in the request body
-
-
-## Proposed Test Scripts
+## Proposed Testing Sequence
+1. Clear all database tables to start a new testing scenario using POST `/api/cleardatabase`
+2. Populate students and teachers database tables using POST `/api/populatestudentsandteachers`
+3. Feel free to test any of the other 4 main endpoints (Note: Registration table and Suspension table are currently empty at this step)
