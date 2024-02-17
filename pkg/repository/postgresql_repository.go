@@ -4,6 +4,7 @@ import (
 	"Golang-API-Assessment/pkg/types"
 	"Golang-API-Assessment/pkg/utils"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
@@ -12,10 +13,14 @@ import (
 
 //go:generate mockery --name=Repository
 type Repository interface {
-	Registration(request *types.RegisterRequest) error
+	Registration(teacherID int, studentID []int) error
 	GetCommonStudents(teachers []string) ([]string, error)
-	Suspension(request *types.SuspendRequest) error
+	Suspension(studentID int) error
 	GetNotification(request *types.NotificationRequest) ([]string, error)
+	GetTeacherID(teacherEmail string) (int, error)
+	GetStudentID(studentEmail string) (int, error)
+	PopulateTables() error
+	ClearTables() error
 }
 
 type PostgreSQLRepository struct {
@@ -55,15 +60,15 @@ func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
 	}, nil
 }
 
-func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) error {
-	query := "INSERT INTO registrations (teacher_email, student_email) VALUES ($1, $2)"
+func (r *PostgreSQLRepository) Registration(teacherID int, studentIDs []int) error {
+	query := "INSERT INTO REGISTRATION (teacher_id, student_id) VALUES ($1, $2)"
 	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		return err
 	}
 
-	for _, studentEmail := range request.Students {
-		_, err := stmt.Exec(request.Teacher, studentEmail)
+	for _, studentID := range studentIDs {
+		_, err := stmt.Exec(teacherID, studentID)
 		if err != nil {
 			return err
 		}
@@ -74,7 +79,14 @@ func (r *PostgreSQLRepository) Registration(request *types.RegisterRequest) erro
 
 func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, error) {
 	pqTeachers := pq.StringArray(teachers)
-	query := "SELECT student_email FROM REGISTRATIONS WHERE teacher_email = any($1)"
+	query := `
+		SELECT s.student_email 
+		FROM REGISTRATION r
+		INNER JOIN STUDENT s
+		ON s.student_id = r.student_id
+		INNER JOIN TEACHER t
+		ON r.teacher_id = t.teacher_id
+		WHERE t.teacher_email = any($1)`
 
 	stmt, err := r.Db.Prepare(query)
 	if err != nil {
@@ -101,15 +113,15 @@ func (r *PostgreSQLRepository) GetCommonStudents(teachers []string) ([]string, e
 	return students, nil
 }
 
-func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
-	query := "INSERT INTO suspensions (student_email) VALUES ($1)"
+func (r *PostgreSQLRepository) Suspension(studentID int) error {
+	query := "INSERT INTO SUSPENSION (student_id) VALUES ($1)"
 
 	stmt, err := r.Db.Prepare(query)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(request.Student)
+	_, err = stmt.Exec(studentID)
 	if err != nil {
 		return err
 	}
@@ -118,18 +130,25 @@ func (r *PostgreSQLRepository) Suspension(request *types.SuspendRequest) error {
 }
 
 func (r *PostgreSQLRepository) GetNotification(request *types.NotificationRequest) ([]string, error) {
-	emails, err := utils.ExtractEmails(request.Message)
+	emails, err := utils.ExtractEmails(request.Notification)
 	if err != nil {
 		return nil, err
 	}
 
 	pqEmails := pq.StringArray(emails)
 
-	query := `SELECT DISTINCT student_email
-				FROM REGISTRATIONS
-				WHERE (teacher_email = $1 OR student_email = any($2))
-				AND student_email NOT IN (
-				    SELECT student_email FROM SUSPENSIONS
+	query := `SELECT DISTINCT s.student_email
+				FROM STUDENT s
+				LEFT JOIN REGISTRATION r
+				ON s.student_id = r.student_id
+				LEFT JOIN TEACHER t
+				ON t.teacher_id = r.teacher_id
+				WHERE (t.teacher_email = $1 OR s.student_email = any($2))
+				AND s.student_email NOT IN (
+				    SELECT s.student_email 
+				    FROM SUSPENSION sp
+				    INNER JOIN STUDENT s
+				    ON sp.student_id = s.student_id
 				)
 				`
 
@@ -164,19 +183,104 @@ func (r *PostgreSQLRepository) Init() error {
 
 func (r *PostgreSQLRepository) createTables() error {
 	query := `
-		CREATE TABLE IF NOT EXISTS registrations (
-		   registration_id SERIAL PRIMARY KEY,
-		   teacher_email VARCHAR(255),
-		   student_email VARCHAR(255),
-		   UNIQUE (teacher_email, student_email)
+		CREATE TABLE IF NOT EXISTS student (
+		    student_id SERIAL PRIMARY KEY,
+			student_email VARCHAR(255) UNIQUE
 		);
 		
-		CREATE TABLE IF NOT EXISTS suspensions (
-			 suspension_id SERIAL PRIMARY KEY,
-			 student_email VARCHAR(255),
-			 UNIQUE (student_email)
+		CREATE TABLE IF NOT EXISTS teacher (
+			teacher_id SERIAL PRIMARY KEY,
+			teacher_email VARCHAR(255) UNIQUE
+		);
+		
+		CREATE TABLE IF NOT EXISTS registration (
+			registration_id SERIAL PRIMARY KEY,
+			teacher_id INT,
+			student_id INT,
+			FOREIGN KEY (teacher_id) REFERENCES teacher(teacher_id),
+			FOREIGN KEY (student_id) REFERENCES student(student_id),
+			UNIQUE (teacher_id, student_id)
+		);
+		
+		CREATE TABLE IF NOT EXISTS suspension (
+			suspension_id SERIAL PRIMARY KEY,
+			student_id INT,
+			FOREIGN KEY (student_id) REFERENCES student(student_id),
+			UNIQUE (student_id)
 		);
 	`
 	_, err := r.Db.Exec(query)
 	return err
+}
+
+func (r *PostgreSQLRepository) GetStudentID(studentEmail string) (int, error) {
+	query := "SELECT student_id FROM STUDENT WHERE student_email = $1"
+
+	var studentID int
+	err := r.Db.QueryRow(query, studentEmail).Scan(&studentID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, fmt.Errorf("student with email %s not found", studentEmail)
+		}
+		return 0, fmt.Errorf("error querying student ID: %s", err)
+	}
+
+	return studentID, nil
+}
+
+func (r *PostgreSQLRepository) GetTeacherID(teacherEmail string) (int, error) {
+	query := "SELECT teacher_id FROM TEACHER WHERE teacher_email = $1"
+
+	var teacherID int
+	err := r.Db.QueryRow(query, teacherEmail).Scan(&teacherID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, fmt.Errorf("teacher with email %s not found", teacherEmail)
+		}
+		return 0, fmt.Errorf("error querying teacherID: %s", err)
+	}
+
+	return teacherID, nil
+}
+
+func (r *PostgreSQLRepository) PopulateTables() error {
+	query := `
+		INSERT INTO STUDENT (student_email)
+		VALUES ('studentjon@gmail.com'),
+		       ('studenthon@gmail.com'),
+		       ('studentmay@gmail.com'),
+		       ('studentagnes@gmail.com'),
+		       ('studentmiche@gmail.com'),
+		       ('studentbob@gmail.com'),
+		       ('studentbad@gmail.com'),
+		       ('studentmary@gmail.com');
+		
+		INSERT INTO TEACHER (teacher_email)
+		VALUES ('teacherken@gmail.com'),
+		       ('teacherjoe@gmail.com'),
+		       ('teachermax@gmail.com');
+	 `
+
+	_, err := r.Db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("failed to insert into tables: %w", err)
+	}
+
+	return nil
+}
+
+func (r *PostgreSQLRepository) ClearTables() error {
+	query := `
+		DELETE FROM REGISTRATION;
+		DELETE FROM SUSPENSION;
+		DELETE FROM STUDENT;
+		DELETE FROM TEACHER;
+		`
+
+	_, err := r.Db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

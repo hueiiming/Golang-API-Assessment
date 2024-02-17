@@ -22,5 +22,7 @@ func (s *Server) Start() error {
 	http.HandleFunc("/api/commonstudents", MakeHTTPHandle(s.HandleCommonStudents))
 	http.HandleFunc("/api/suspend", MakeHTTPHandle(s.HandleSuspend))
 	http.HandleFunc("/api/retrievefornotifications", MakeHTTPHandle(s.HandleRetrieveNotifications))
+	http.HandleFunc("/api/populatestudentsandteachers", MakeHTTPHandle(s.HandlePopulateStudentsAndTeachers))
+	http.HandleFunc("/api/cleardatabase", MakeHTTPHandle(s.HandleClearDatabase))
 	return http.ListenAndServe(s.listenAddr, nil)
 }

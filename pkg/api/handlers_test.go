@@ -39,7 +39,10 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				repository.On(mockMethod, request).Once().Return(nil)
+				repository.On("GetTeacherID", mock.Anything).Once().Return(1, nil)
+				repository.On("GetStudentID", mock.Anything).Once().Return(1, nil)
+				repository.On("GetStudentID", mock.Anything).Once().Return(2, nil)
+				repository.On(mockMethod, mock.Anything, mock.Anything).Once().Return(nil)
 				return httptest.NewServer(MakeHTTPHandle(s.HandleRegister))
 			},
 			expStatus:  http.StatusNoContent,
@@ -85,7 +88,8 @@ func TestHandlersPost(t *testing.T) {
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
-				repository.On(mockMethod, request).Once().Return(nil)
+				repository.On("GetStudentID", mock.Anything).Once().Return(1, nil)
+				repository.On(mockMethod, mock.Anything).Once().Return(nil)
 				return httptest.NewServer(MakeHTTPHandle(s.HandleSuspend))
 			},
 			expStatus:  http.StatusNoContent,
@@ -122,8 +126,8 @@ func TestHandlersPost(t *testing.T) {
 			mockMethod: "GetNotification",
 			path:       "/api/retrievefornotifications",
 			request: &types.NotificationRequest{
-				Teacher: "teacherken@gmail.com",
-				Message: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
+				Teacher:      "teacherken@gmail.com",
+				Notification: "Hello students! @studentagnes@gmail.com @studentmiche@gmail.com",
 			},
 			getServer: func(t *testing.T, repository *mocks.Repository, mockMethod string, request interface{}) *httptest.Server {
 				s := NewServer(":3000", repository)
