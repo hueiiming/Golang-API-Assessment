@@ -266,18 +266,19 @@ Throughout this project, I have been adhering to the git workflow best practices
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-- Install go 
+- Install go <br>
 ```brew install go``` or visit https://go.dev/doc/install
-- Install mockery 
+- Install mockery <br>
 ```brew install mockery``` or visit https://go.dev/doc/install
-- Install DBeaver https://dbeaver.io/download/ or any other database that supports PostgreSQL
+- Install DBeaver <br>
+  https://dbeaver.io/download/ or any other database that supports PostgreSQL
 - Include `.env` file in the root folder **Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
   - `ENV=local` for running application in local machine
   - `ENV=prod` for running application in production
   ```
-  ENV=local
-  PORT=8080
-  DB_PASSWORD=<PASSWORD>
+  ENV=local     # can be set to local or prod
+  PORT=8080     # local port
+  DB_PASSWORD=<PASSWORD> # DB password for prod (can ignore if running on local machine)
   ```
 
 ### Run Locally
