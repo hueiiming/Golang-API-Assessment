@@ -152,7 +152,7 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 	return WriteToJSON(w, http.StatusOK, notification)
 }
 
-func (s *Server) HandlePopulateTestData(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandlePopulateStudentsAndTeachers(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("status method not allowed")
 	}
@@ -164,7 +164,7 @@ func (s *Server) HandlePopulateTestData(w http.ResponseWriter, r *http.Request) 
 	return WriteToJSON(w, http.StatusNoContent, nil)
 }
 
-func (s *Server) HandleClearTestData(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) HandleClearDatabase(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "POST" {
 		return fmt.Errorf("status method not allowed")
 	}
