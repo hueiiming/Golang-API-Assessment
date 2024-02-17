@@ -324,7 +324,7 @@ Unit tests are being executed on every Pull Request or Push to main branch using
 <br><br>
 
 ## Proposed Testing Sequence
-Recommended Postman collections are included in `postman` folder
+Recommended Postman collections are included in `postman` folder to import
 1. Clear all database tables to start a new testing scenario using POST `/api/cleardatabase`
 2. Populate students and teachers database tables using POST `/api/populatestudentsandteachers`
 3. Feel free to test any of the other 4 main endpoints (Note: Registration table and Suspension table are currently empty at this step)
@@ -334,7 +334,8 @@ Recommended Postman collections are included in `postman` folder
 ## Git Workflow Practices
 Throughout this project, I have been adhering to the git workflow best practices by:
 - Branching out for every code change such as new features/bug fixes
-- Creating Pull Requests before merging into the main branch
+- Creating Pull Requests (PR) before merging into the main branch
+- Squash and Merge PRs to keep the main branch commits clean
 - Keeping the main branch stable at all times
 - Committing frequently with descriptive messages
-- Integrated CI testing using GitHub Actions to ensure every Pull Request passes before merging into the main branch
+- Integrated CI testing using GitHub Actions to ensure every PR passes before merging into the main branch
