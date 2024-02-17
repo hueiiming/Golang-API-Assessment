@@ -70,7 +70,7 @@ func (s *Server) HandleCommonStudents(w http.ResponseWriter, r *http.Request) er
 	}
 
 	queryParam := r.URL.Query()
-	if err := utils.HasWrongParam(queryParam); err != nil {
+	if err := hasWrongCommonStudentsParam(s.repo, queryParam); err != nil {
 		return err
 	}
 	teachers := queryParam["teacher"]
@@ -112,6 +112,10 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("missing student request")
 	}
 
+	if isEmailValid, err := utils.IsValidEmail(suspendReq.Student); err != nil || !isEmailValid {
+		return fmt.Errorf("invalid student email: %w", err)
+	}
+
 	studentID, err := s.repo.GetStudentID(suspendReq.Student)
 	if err != nil {
 		return err
@@ -141,6 +145,11 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 
 	if isEmailValid, err := utils.IsValidEmail(notifReq.Teacher); err != nil || !isEmailValid {
 		return fmt.Errorf("invalid teacher email: %w", err)
+	}
+
+	// Check if teacher email exist in database
+	if _, err := s.repo.GetTeacherID(notifReq.Teacher); err != nil {
+		return err
 	}
 
 	recipients, err := s.repo.GetNotification(&notifReq)
@@ -219,5 +228,26 @@ func isCorrectRequestMethod(r *http.Request, method string) error {
 	if r.Method != method {
 		return fmt.Errorf("status method not allowed")
 	}
+	return nil
+}
+
+func hasWrongCommonStudentsParam(repo repository.Repository, queryParam map[string][]string) error {
+	for paramName := range queryParam {
+		if paramName != "teacher" {
+			return fmt.Errorf("invalid query param")
+		}
+	}
+	for _, emails := range queryParam {
+		for _, email := range emails {
+			if email == "" {
+				return fmt.Errorf("empty query param")
+			}
+			// Check if teacher email exist in database
+			if _, err := repo.GetTeacherID(email); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }

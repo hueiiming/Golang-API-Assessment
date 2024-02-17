@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -35,21 +34,4 @@ func AreValidEmails(emails []string) (bool, error) {
 		}
 	}
 	return true, nil
-}
-
-func HasWrongParam(queryParam map[string][]string) error {
-	for paramName := range queryParam {
-		if paramName != "teacher" {
-			return fmt.Errorf("invalid query param")
-		}
-	}
-	for _, emails := range queryParam {
-		for _, email := range emails {
-			if email == "" {
-				return fmt.Errorf("empty query param")
-			}
-		}
-	}
-
-	return nil
 }
