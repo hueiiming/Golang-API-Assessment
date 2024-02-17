@@ -19,10 +19,10 @@ func TestPostgreSQLRepository_Registration(t *testing.T) {
 	}
 
 	// Registration SQL query was prepared once then executed twice in the loop
-	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+	mock.ExpectPrepare("INSERT INTO REGISTRATION").ExpectExec().
 		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectExec("INSERT INTO").
+	mock.ExpectExec("INSERT INTO REGISTRATION").
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -49,7 +49,8 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		Db: db,
 	}
 
-	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+	// Register student to teacher
+	mock.ExpectPrepare("INSERT INTO REGISTRATION").ExpectExec().
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -67,7 +68,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 
 	pqTeachers := pq.StringArray([]string{"teacherken@gmail.com"})
 
-	mock.ExpectPrepare("SELECT s.student_email").ExpectQuery().
+	mock.ExpectPrepare("SELECT s.student_email FROM REGISTRATION r").ExpectQuery().
 		WithArgs(pqTeachers).
 		WillReturnRows(rows)
 
@@ -94,7 +95,7 @@ func TestPostgreSQLRepository_Suspension(t *testing.T) {
 		Db: db,
 	}
 
-	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+	mock.ExpectPrepare("INSERT INTO SUSPENSION").ExpectExec().
 		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -121,7 +122,8 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		Db: db,
 	}
 
-	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+	// Register student to teacher
+	mock.ExpectPrepare("INSERT INTO REGISTRATION").ExpectExec().
 		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -134,7 +136,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 	}
 
 	// Suspend student
-	mock.ExpectPrepare("INSERT INTO").ExpectExec().
+	mock.ExpectPrepare("INSERT INTO SUSPENSION").ExpectExec().
 		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -154,7 +156,7 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		AddRow("studentjon@gmail.com")
 	pqEmails := pq.StringArray([]string{"studentagnes@gmail.com", "studentmiche@gmail.com"})
 
-	mock.ExpectPrepare("SELECT DISTINCT s.student_email").ExpectQuery().
+	mock.ExpectPrepare("SELECT DISTINCT s.student_email FROM STUDENT s LEFT JOIN REGISTRATION r").ExpectQuery().
 		WithArgs("teacherken@gmail.com", pqEmails).
 		WillReturnRows(rows)
 
@@ -166,6 +168,66 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 	_, err = repo.GetNotification(notifRequest)
 	if err != nil {
 		t.Errorf("Failed to get student_email from REGISTRATION AND SUSPENSION table: %s", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Failed expectations: %s", err)
+	}
+}
+
+func TestPostgreSQLRepository_GetStudentID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening stub database connection", err)
+	}
+	defer db.Close()
+
+	repo := &PostgreSQLRepository{
+		Db: db,
+	}
+
+	rows := sqlmock.NewRows([]string{"student_id"}).
+		AddRow(1)
+
+	studentEmail := "studentjon@gmail.com"
+	mock.ExpectQuery("^SELECT student_id FROM STUDENT*").
+		WithArgs(studentEmail).
+		WillReturnRows(rows)
+
+	_, err = repo.GetStudentID(studentEmail)
+
+	if err != nil {
+		t.Errorf("Failed to get student_id from STUDENT table: %s", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Failed expectations: %s", err)
+	}
+}
+
+func TestPostgreSQLRepository_GetTeacherID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening stub database connection", err)
+	}
+	defer db.Close()
+
+	repo := &PostgreSQLRepository{
+		Db: db,
+	}
+
+	rows := sqlmock.NewRows([]string{"teacher_id"}).
+		AddRow(1)
+
+	teacherEmail := "teacherken@gmail.com"
+	mock.ExpectQuery("^SELECT teacher_id FROM TEACHER*").
+		WithArgs(teacherEmail).
+		WillReturnRows(rows)
+
+	_, err = repo.GetTeacherID(teacherEmail)
+
+	if err != nil {
+		t.Errorf("Failed to get teacher_id from TEACHER table: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {

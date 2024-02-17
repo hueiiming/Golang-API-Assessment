@@ -214,7 +214,7 @@ func (r *PostgreSQLRepository) createTables() error {
 }
 
 func (r *PostgreSQLRepository) GetStudentID(studentEmail string) (int, error) {
-	query := "SELECT student_id FROM student WHERE student_email = $1"
+	query := "SELECT student_id FROM STUDENT WHERE student_email = $1"
 
 	var studentID int
 	err := r.Db.QueryRow(query, studentEmail).Scan(&studentID)
@@ -229,7 +229,7 @@ func (r *PostgreSQLRepository) GetStudentID(studentEmail string) (int, error) {
 }
 
 func (r *PostgreSQLRepository) GetTeacherID(teacherEmail string) (int, error) {
-	query := "SELECT teacher_id FROM teacher WHERE teacher_email = $1"
+	query := "SELECT teacher_id FROM TEACHER WHERE teacher_email = $1"
 
 	var teacherID int
 	err := r.Db.QueryRow(query, teacherEmail).Scan(&teacherID)
