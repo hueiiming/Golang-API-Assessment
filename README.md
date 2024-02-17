@@ -5,8 +5,8 @@
 - [Deployed API](#deployed-api) <a name="deployed-api"/>  
 - [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
 - [Design Decisions](#design-decisions) <a name="design-decisions"/>
-- [Run Locally](#run-locally) <a name="run-locally"/>   
-- [Database Design](#database-design) <a name="database-design"/>
+- [Setup (Local & Production)](#setup-(local-&-production)) <a name="setup-(local-&-production)"/>
+- [Unit Tests](#unit-tests) <a name="unit-tests"/>
 - [Proposed Testing Sequence](#proposed-testing-sequence) <a name="proposed-testing-sequence"/>
 
 <br>
@@ -166,14 +166,10 @@ different database implementations without affecting the higher-level applicatio
 
     
     Therefore, this fulfills the Factory pattern that defines providing an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created.
-
-
-
-
   
 <br>
 
-## Run Locally
+## Setup (Local & Production)
 
 ### Prerequisites
 - Install Homebrew for macOS or Linux 
@@ -183,38 +179,68 @@ different database implementations without affecting the higher-level applicatio
 - Install go 
 ```brew install go``` or visit https://go.dev/doc/install
 - Install DBeaver https://dbeaver.io/download/ or any other database that supports PostgreSQL
-- Include `.env` file in the root folder
-```
-ENV=local
-PORT=8080
-DB_PASSWORD=<PASSWORD>
-```
-**Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
+- Include `.env` file in the root folder **Note**: DB_PASSWORD is for production connection to PostgreSQL, the password will be provided by me
+  - `ENV=local` for running application in local machine
+  - `ENV=prod` for running application in production
+  ```
+  ENV=local
+  PORT=8080
+  DB_PASSWORD=<PASSWORD>
+  ```
 
-### Step 1: Clone repo
-```
-git clone https://github.com/hueiiming/Golang-API-Assessment.git
-```
-
-### Step 2: Run go project
-```
-make run
-```
-
-### Step 3: Connect to PostgreSQL and view data
-- Open up DBeaver
-- Click file -> new -> expand DBeaver -> click Database Connection
-- Select PostgreSQL and click next
-- Connection settings
-  - **Host**: localhost
-  - **Database**: postgres
-  - **Port**: 5432
-  - **username**: postgres
-  - **password**: root
-- Click on Finish
-- You have now successfully connected to postgres
+### Run Locally
+  #### Step 1: Clone repo
+  ```
+  git clone https://github.com/hueiiming/Golang-API-Assessment.git
+  ```
   
-<img width="674" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/caa935f8-6493-4ab5-a53d-aa17c7d574a4">
+  #### Step 2: Run go project
+  ```
+  make run
+  ```
+  
+  #### Step 3: Connect to PostgreSQL and view data
+  - Open up DBeaver
+  - Click file -> new -> expand DBeaver -> click Database Connection
+  - Select PostgreSQL and click next
+  - Connection settings
+    - **Host**: localhost
+    - **Database**: postgres
+    - **Port**: 5432
+    - **username**: postgres
+    - **password**: root
+  - Click on Finish
+  - You have now successfully connected to postgres
+    
+  <img width="674" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/caa935f8-6493-4ab5-a53d-aa17c7d574a4">
+
+
+### View production Database
+  #### Connect to PostgreSQL and view data
+  - Open up DBeaver
+  - Click file -> new -> expand DBeaver -> click Database Connection
+  - Select PostgreSQL and click next
+  - Connection settings
+    - **Host**: aws-0-ap-southeast-1.pooler.supabase.com
+    - **Database**: postgres
+    - **Port**: 5432
+    - **username**: postgres.wxmkhkkcxatyzukbfqtw
+    - **password**: <Will be provided by me>
+  - Click on Finish
+  - You have now successfully connected to postgres in production environment
+    
+  <img width="519" alt="image" src="https://github.com/hueiiming/Golang-API-Assessment/assets/61011188/e57e1ae1-9d94-4e93-913d-f3bb83e50e1e">
+
+<br><br>
+
+## Unit Tests
+Unit tests are being executed on every Pull Request or Push to main branch using Github Actions
+  - handlers_test.go (Follows a table-driven test, to be more descriptive and easy to understand)
+  - postgresql_repository_test.go (Uses sqlmock library `"github.com/DATA-DOG/go-sqlmock"`, without needing a real database connection)
+  ### Run tests locally:
+  ```
+  make test
+  ```
 
 <br><br>
 
