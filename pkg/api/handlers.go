@@ -1,6 +1,7 @@
 package api
 
 import (
+	"Golang-API-Assessment/pkg/repository"
 	"Golang-API-Assessment/pkg/types"
 	"Golang-API-Assessment/pkg/utils"
 	"encoding/json"
@@ -41,7 +42,17 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("invalid student email: %w", err)
 	}
 
-	if err := s.repo.Registration(&registerReq); err != nil {
+	teacherID, err := s.repo.GetTeacherID(registerReq.Teacher)
+	if err != nil {
+		return err
+	}
+
+	studentIDs, err := GetStudentIDs(s.repo, registerReq.Students)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.Registration(teacherID, studentIDs); err != nil {
 		return fmt.Errorf("error registering: %w", err)
 	}
 
@@ -95,7 +106,12 @@ func (s *Server) HandleSuspend(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("invalid request")
 	}
 
-	if err := s.repo.Suspension(&suspendReq); err != nil {
+	studentID, err := s.repo.GetStudentID(suspendReq.Student)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.Suspension(studentID); err != nil {
 		return fmt.Errorf("error suspending: %w", err)
 	}
 
@@ -134,6 +150,42 @@ func (s *Server) HandleRetrieveNotifications(w http.ResponseWriter, r *http.Requ
 	}
 
 	return WriteToJSON(w, http.StatusOK, notification)
+}
+
+func (s *Server) HandlePopulateTestData(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		return fmt.Errorf("status method not allowed")
+	}
+
+	if err := s.repo.PopulateTables(); err != nil {
+		return err
+	}
+
+	return WriteToJSON(w, http.StatusNoContent, nil)
+}
+
+func (s *Server) HandleClearTestData(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		return fmt.Errorf("status method not allowed")
+	}
+
+	if err := s.repo.ClearTables(); err != nil {
+		return fmt.Errorf("error clearing tables")
+	}
+
+	return WriteToJSON(w, http.StatusNoContent, nil)
+}
+
+func GetStudentIDs(repo repository.Repository, studentEmails []string) ([]int, error) {
+	var studentIDs []int
+	for _, email := range studentEmails {
+		studentID, err := repo.GetStudentID(email)
+		if err != nil {
+			return nil, err
+		}
+		studentIDs = append(studentIDs, studentID)
+	}
+	return studentIDs, nil
 }
 
 func WriteToJSON(w http.ResponseWriter, status int, v any) error {

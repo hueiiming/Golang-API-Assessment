@@ -20,23 +20,17 @@ func TestPostgreSQLRepository_Registration(t *testing.T) {
 
 	// Registration SQL query was prepared once then executed twice in the loop
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
-		WithArgs("teacherken@gmail.com", "studentjon@gmail.com").
+		WithArgs(1, 1).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectExec("INSERT INTO").
-		WithArgs("teacherken@gmail.com", "studenthon@gmail.com").
+		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	request := &types.RegisterRequest{
-		Teacher: "teacherken@gmail.com",
-		Students: []string{
-			"studentjon@gmail.com",
-			"studenthon@gmail.com",
-		},
-	}
-
-	err = repo.Registration(request)
+	teacherID := 1
+	studentIDs := []int{1, 2}
+	err = repo.Registration(teacherID, studentIDs)
 	if err != nil {
-		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
+		t.Errorf("Failed to insert into REGISTRATION TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -55,22 +49,16 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		Db: db,
 	}
 
-	// Register student & teacher
-	registerReq := &types.RegisterRequest{
-		Teacher: "teacherken@gmail.com",
-		Students: []string{
-			"studentjon@gmail.com",
-		},
-	}
-
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
-		WithArgs("teacherken@gmail.com", "studentjon@gmail.com").
+		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err = repo.Registration(registerReq)
+	teacherID := 1
+	studentIDs := []int{1}
+	err = repo.Registration(teacherID, studentIDs)
 
 	if err != nil {
-		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
+		t.Errorf("Failed to insert into REGISTRATION TABLE: %s", err)
 	}
 
 	// Get common students
@@ -87,7 +75,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 
 	_, err = repo.GetCommonStudents(request)
 	if err != nil {
-		t.Errorf("Failed to get student_email from REGISTRATIONS TABLE: %s", err)
+		t.Errorf("Failed to get student_email from REGISTRATION TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -107,16 +95,14 @@ func TestPostgreSQLRepository_Suspension(t *testing.T) {
 	}
 
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
-		WithArgs("studentmary@gmail.com").
+		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	request := &types.SuspendRequest{
-		Student: "studentmary@gmail.com",
-	}
+	studentID := 3
 
-	err = repo.Suspension(request)
+	err = repo.Suspension(studentID)
 	if err != nil {
-		t.Errorf("Failed to insert into SUSPENSIONS TABLE: %s", err)
+		t.Errorf("Failed to insert into SUSPENSION TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -135,36 +121,28 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 		Db: db,
 	}
 
-	// Register student & teacher
-	registerReq := &types.RegisterRequest{
-		Teacher: "teacherken@gmail.com",
-		Students: []string{
-			"studentjon@gmail.com",
-		},
-	}
-
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
-		WithArgs("teacherken@gmail.com", "studentjon@gmail.com").
+		WithArgs(1, 2).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err = repo.Registration(registerReq)
+	teacherID := 1
+	studentIDs := []int{2}
+	err = repo.Registration(teacherID, studentIDs)
 
 	if err != nil {
-		t.Errorf("Failed to insert into REGISTRATIONS TABLE: %s", err)
+		t.Errorf("Failed to insert into REGISTRATION TABLE: %s", err)
 	}
 
 	// Suspend student
 	mock.ExpectPrepare("INSERT INTO").ExpectExec().
-		WithArgs("studentmary@gmail.com").
+		WithArgs(3).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	SuspendReq := &types.SuspendRequest{
-		Student: "studentmary@gmail.com",
-	}
+	studentID := 3
 
-	err = repo.Suspension(SuspendReq)
+	err = repo.Suspension(studentID)
 	if err != nil {
-		t.Errorf("Failed to insert into SUSPENSIONS TABLE: %s", err)
+		t.Errorf("Failed to insert into SUSPENSION TABLE: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -172,12 +150,12 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 	}
 
 	// Get notifications
-	rows := sqlmock.NewRows([]string{"student_email"}).
-		AddRow("studentjon@gmail.com")
-	pqEmails := pq.StringArray([]string{"studentagnes@gmail.com", "studentmiche@gmail.com"})
+	rows := sqlmock.NewRows([]string{"student_id"}).
+		AddRow(1)
+	pqEmails := pq.Int64Array{4, 5}
 
-	mock.ExpectPrepare("SELECT student_email").ExpectQuery().
-		WithArgs("teacherken@gmail.com", pqEmails).
+	mock.ExpectPrepare("SELECT student_id FROM REGISTRATION").ExpectQuery().
+		WithArgs("1", pqEmails).
 		WillReturnRows(rows)
 
 	notifRequest := &types.NotificationRequest{
