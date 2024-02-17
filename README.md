@@ -2,13 +2,14 @@
 
 ## Table of Contents  
 - [About](#about) <a name="about"/>  
-- [Deployed API](#deployed-api) <a name="deployed-api"/>  
-- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
+- [Deployed API](#deployed-api) <a name="deployed-api"/>
 - [Project Structure](#project-structure) <a name="project-structure"/>
+- [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
 - [Design Decisions](#design-decisions) <a name="design-decisions"/>
 - [Setup (Local & Production)](#setup-(local-&-production)) <a name="setup-(local-&-production)"/>
 - [Unit Tests](#unit-tests) <a name="unit-tests"/>
 - [Proposed Testing Sequence](#proposed-testing-sequence) <a name="proposed-testing-sequence"/>
+- [Git Workflow Practices](#git-workflow-practices) <a name="git-workflow-practices"/>
 
 <br>
 
@@ -327,3 +328,13 @@ Recommended Postman collections are included in `postman` folder
 1. Clear all database tables to start a new testing scenario using POST `/api/cleardatabase`
 2. Populate students and teachers database tables using POST `/api/populatestudentsandteachers`
 3. Feel free to test any of the other 4 main endpoints (Note: Registration table and Suspension table are currently empty at this step)
+
+<br><br>
+
+## Git Workflow Practices
+Throughout this project, I have been adhering to the git workflow best practices by:
+- Branching out for every code change such as new features/bug fixes
+- Creating Pull Requests before merging into the main branch
+- Keeping the main branch stable at all times
+- Committing frequently with descriptive messages
+- Integrated CI testing using GitHub Actions to ensure every Pull Request passes before merging into the main branch
