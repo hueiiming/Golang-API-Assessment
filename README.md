@@ -54,6 +54,10 @@ Golang-API-Assessment/
 │   └── utils/                             # Helper methods    
 │       ├── utils.go   
 │
+├── postman/                   
+│   ├── local.postman_collection.json       # postman collection to import for local test
+│   └── production.postman_collection.json  # postman collection to import for prod test
+│
 ├── .env                                   # Will be provided by me
 ├── .gitignore
 ├── go.mod
@@ -318,6 +322,7 @@ Unit tests are being executed on every Pull Request or Push to main branch using
 <br><br>
 
 ## Proposed Testing Sequence
+Recommended Postman collections are included in `postman` folder
 1. Clear all database tables to start a new testing scenario using POST `/api/cleardatabase`
 2. Populate students and teachers database tables using POST `/api/populatestudentsandteachers`
 3. Feel free to test any of the other 4 main endpoints (Note: Registration table and Suspension table are currently empty at this step)
