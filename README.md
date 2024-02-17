@@ -225,7 +225,7 @@ different database implementations without affecting the higher-level applicatio
     - **Database**: postgres
     - **Port**: 5432
     - **username**: postgres.wxmkhkkcxatyzukbfqtw
-    - **password**: <Will be provided by me>
+    - **password**: Will be provided by me
   - Click on Finish
   - You have now successfully connected to postgres in production environment
     
