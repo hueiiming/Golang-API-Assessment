@@ -147,17 +147,17 @@ func (_m *Repository) GetTeacherID(teacherEmail string) (int, error) {
 	return r0, r1
 }
 
-// PopulateTables provides a mock function with given fields:
-func (_m *Repository) PopulateTables() error {
-	ret := _m.Called()
+// PopulateTables provides a mock function with given fields: teacherEmails, studentEmails
+func (_m *Repository) PopulateTables(teacherEmails []string, studentEmails []string) error {
+	ret := _m.Called(teacherEmails, studentEmails)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PopulateTables")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func([]string, []string) error); ok {
+		r0 = rf(teacherEmails, studentEmails)
 	} else {
 		r0 = ret.Error(0)
 	}

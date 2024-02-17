@@ -11,47 +11,13 @@ import (
 	"os"
 )
 
-//go:generate mockery --name=Repository
-type Repository interface {
-	Registration(teacherID int, studentID []int) error
-	GetCommonStudents(teachers []string) ([]string, error)
-	Suspension(studentID int) error
-	GetNotification(request *types.NotificationRequest) ([]string, error)
-	GetTeacherID(teacherEmail string) (int, error)
-	GetStudentID(studentEmail string) (int, error)
-	PopulateTables() error
-	ClearTables() error
-}
-
 type PostgreSQLRepository struct {
 	Db *sql.DB
 }
 
 func NewPostgreSQLRepository() (*PostgreSQLRepository, error) {
-	var connStr string
-
-	env := os.Getenv("ENV")
-	if env == "" {
-		env = "local"
-	}
-
-	switch env {
-	case "local":
-		// Connect to local postgresql
-		connStr = "user=postgres dbname=postgres password=root sslmode=disable"
-	case "prod":
-		// Connect to deployed postgresql https://supabase.com
-		password := os.Getenv("DB_PASSWORD")
-		connStr = "user=postgres.wxmkhkkcxatyzukbfqtw password=" + password + " host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres"
-	}
-
-	db, err := sql.Open("postgres", connStr)
-
+	db, err := connectToDB()
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
@@ -243,27 +209,12 @@ func (r *PostgreSQLRepository) GetTeacherID(teacherEmail string) (int, error) {
 	return teacherID, nil
 }
 
-func (r *PostgreSQLRepository) PopulateTables() error {
-	query := `
-		INSERT INTO STUDENT (student_email)
-		VALUES ('studentjon@gmail.com'),
-		       ('studenthon@gmail.com'),
-		       ('studentmay@gmail.com'),
-		       ('studentagnes@gmail.com'),
-		       ('studentmiche@gmail.com'),
-		       ('studentbob@gmail.com'),
-		       ('studentbad@gmail.com'),
-		       ('studentmary@gmail.com');
-		
-		INSERT INTO TEACHER (teacher_email)
-		VALUES ('teacherken@gmail.com'),
-		       ('teacherjoe@gmail.com'),
-		       ('teachermax@gmail.com');
-	 `
-
-	_, err := r.Db.Exec(query)
-	if err != nil {
-		return fmt.Errorf("failed to insert into tables: %w", err)
+func (r *PostgreSQLRepository) PopulateTables(teacherEmails []string, studentEmails []string) error {
+	if err := bulkImport(r, teacherEmails, "teacher", "teacher_email"); err != nil {
+		return err
+	}
+	if err := bulkImport(r, studentEmails, "student", "student_email"); err != nil {
+		return err
 	}
 
 	return nil
@@ -283,4 +234,64 @@ func (r *PostgreSQLRepository) ClearTables() error {
 	}
 
 	return nil
+}
+
+func bulkImport(r *PostgreSQLRepository, emails []string, tableName string, columns ...string) error {
+	tx, err := r.Db.Begin()
+	if err != nil {
+		return fmt.Errorf("error beginning transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.Prepare(pq.CopyIn(tableName, columns...))
+	if err != nil {
+		return fmt.Errorf("error preparing bulk insert statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, email := range emails {
+		_, err = stmt.Exec(email)
+		if err != nil {
+			return fmt.Errorf("error adding row to bulk insert statement: %w", err)
+		}
+	}
+
+	// flush buffered data
+	_, err = stmt.Exec()
+
+	err = stmt.Close()
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("error committing transaction")
+	}
+
+	return nil
+}
+
+func connectToDB() (*sql.DB, error) {
+	var connStr string
+
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "local"
+	}
+
+	switch env {
+	case "local":
+		// Connect to local postgresql
+		connStr = "user=postgres dbname=postgres password=root sslmode=disable"
+	case "prod":
+		// Connect to deployed postgresql https://supabase.com
+		password := os.Getenv("DB_PASSWORD")
+		connStr = "user=postgres.wxmkhkkcxatyzukbfqtw password=" + password + " host=aws-0-ap-southeast-1.pooler.supabase.com port=5432 dbname=postgres"
+	}
+
+	db, err := sql.Open("postgres", connStr)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

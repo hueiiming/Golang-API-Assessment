@@ -13,3 +13,8 @@ type NotificationRequest struct {
 	Teacher      string `json:"teacher"`
 	Notification string `json:"notification"`
 }
+
+type BulkImportRequest struct {
+	Teachers []string `json:"teachers"`
+	Students []string `json:"students"`
+}
