@@ -54,7 +54,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	teacherID := 1
-	studentIDs := []int{1}
+	studentIDs := []int{2}
 	err = repo.Registration(teacherID, studentIDs)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func TestPostgreSQLRepository_GetCommonStudents(t *testing.T) {
 
 	pqTeachers := pq.StringArray([]string{"teacherken@gmail.com"})
 
-	mock.ExpectPrepare("SELECT student_email").ExpectQuery().
+	mock.ExpectPrepare("SELECT s.student_email").ExpectQuery().
 		WithArgs(pqTeachers).
 		WillReturnRows(rows)
 
@@ -150,12 +150,12 @@ func TestPostgreSQLRepository_GetNotification(t *testing.T) {
 	}
 
 	// Get notifications
-	rows := sqlmock.NewRows([]string{"student_id"}).
-		AddRow(1)
-	pqEmails := pq.Int64Array{4, 5}
+	rows := sqlmock.NewRows([]string{"student_email"}).
+		AddRow("studentjon@gmail.com")
+	pqEmails := pq.StringArray([]string{"studentagnes@gmail.com", "studentmiche@gmail.com"})
 
-	mock.ExpectPrepare("SELECT student_id FROM REGISTRATION").ExpectQuery().
-		WithArgs("1", pqEmails).
+	mock.ExpectPrepare("SELECT DISTINCT s.student_email").ExpectQuery().
+		WithArgs("teacherken@gmail.com", pqEmails).
 		WillReturnRows(rows)
 
 	notifRequest := &types.NotificationRequest{
