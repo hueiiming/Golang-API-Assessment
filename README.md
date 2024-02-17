@@ -4,6 +4,7 @@
 - [About](#about) <a name="about"/>  
 - [Deployed API](#deployed-api) <a name="deployed-api"/>  
 - [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
+- [Project Structure](#project-structure) <a name="project-structure"/>
 - [Design Decisions](#design-decisions) <a name="design-decisions"/>
 - [Setup (Local & Production)](#setup-(local-&-production)) <a name="setup-(local-&-production)"/>
 - [Unit Tests](#unit-tests) <a name="unit-tests"/>
@@ -98,6 +99,51 @@ URL: https://golang-api-assessment-hueiiming.onrender.com
 - POST `/api/cleardatabase`
   - Headers: Content-Type: application/json
   - Success response status: HTTP 204
+- Error handling
+  - `"message": "error: status method not allowed"`
+  - `"message": "error: invalid teacher email"`
+  - `"message": "error: invalid student email"`
+  - `"message": "error: missing student request"`
+  - `"message": "error: invalid teacher or notification request"`
+
+<br>
+
+## Project Structure
+```bash
+Golang-API-Assessment/
+│
+│── .github/
+│   └── workflows
+│   │   ├──ci.yml                          # Run unit tests in Github CI
+│
+├── cmd/                   
+│   └── main.go                            # main app to run
+│
+├── pkg/                       
+│   ├── api/                   
+│   │   ├── handlers.go                    # Handles api endpoints
+│   │   └── handlers_test.go               # Handlers unit test
+│   │   └── server.go                      # Start the server
+│   │
+│   └── repository/                        # Database
+│   │   ├── postgresql_repository.go       # Database methods
+│   │   └── postgresql_repository_test.go  # Database test
+│   │   └── repository.go                  # Interface for database methods
+│   │
+│   └── types/                             # Common structs
+│   │   ├── requests.go                    
+│   │   └── response.go
+│   │
+│   └── utils/                             # Helper methods    
+│       ├── utils.go   
+│
+├── .env                                   # Will be provided by me
+├── .gitignore
+├── go.mod
+├── go.sum
+├── Makefile
+├── README.md
+```
 
 <br>
 
