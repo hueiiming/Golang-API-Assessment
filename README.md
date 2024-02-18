@@ -305,8 +305,11 @@ https://www.docker.com/products/docker-desktop/
   ```
   make run
   ```
+
+  #### Step 5: Access localhost URL
+  http://localhost:8080
   
-  #### Step 3: Connect to PostgreSQL and view data
+  #### Step 6: Connect to PostgreSQL and view data
   - Open up DBeaver
   - Click file -> new -> expand DBeaver -> click Database Connection
   - Select PostgreSQL and click next
