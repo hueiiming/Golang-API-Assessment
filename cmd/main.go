@@ -4,16 +4,11 @@ import (
 	"Golang-API-Assessment/pkg/api"
 	"Golang-API-Assessment/pkg/repository"
 	"flag"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("err loading: %v", err)
-	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
