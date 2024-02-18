@@ -19,7 +19,7 @@ Backend application that will be part of a system which teachers can use to perf
 <br>
 
 ## Deployed API
-- URL: https://golang-api-assessment-hueiiming.onrender.com
+- URL: https://golang-api-assessment-hueiming.onrender.com
 - Hosted service on https://render.com
 - Hosted database on https://supabase.com
 
@@ -305,8 +305,11 @@ https://www.docker.com/products/docker-desktop/
   ```
   make run
   ```
+
+  #### Step 5: Access localhost URL
+  http://localhost:8080
   
-  #### Step 3: Connect to PostgreSQL and view data
+  #### Step 6: Connect to PostgreSQL and view data
   - Open up DBeaver
   - Click file -> new -> expand DBeaver -> click Database Connection
   - Select PostgreSQL and click next
