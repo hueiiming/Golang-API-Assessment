@@ -72,6 +72,8 @@ Golang-API-Assessment/
 <br>
 
 ## API Endpoints
+I have included 2 new endpoints for ease of testing: <br>
+`/api/populatestudentsandteachers` & `/api/cleardatabase`
 - POST `/api/register`
   - Headers: Content-Type: application/json
   - Success Response status: HTTP 204
