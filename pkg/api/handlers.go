@@ -40,6 +40,11 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("error decoding JSON request: %w", err)
 	}
 
+	// Validate JSON request
+	if registerReq.Teacher == "" || len(registerReq.Students) == 0 {
+		return fmt.Errorf("invalid JSON request")
+	}
+
 	if isEmailValid, err := utils.IsValidEmail(registerReq.Teacher); err != nil || !isEmailValid {
 		return fmt.Errorf("invalid teacher email: %w", err)
 	}

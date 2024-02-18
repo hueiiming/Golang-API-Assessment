@@ -66,7 +66,7 @@ func TestHandlersPost(t *testing.T) {
 			},
 			expStatus: http.StatusBadRequest,
 			expBody: ApiError{
-				Message: "error: invalid teacher email",
+				Message: "error: invalid JSON request",
 			},
 			verifyBody: func(t *testing.T, body []byte, expBody interface{}) {
 				var respBody ApiError
