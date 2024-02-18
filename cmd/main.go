@@ -21,8 +21,10 @@ func main() {
 		port = "8080"
 	}
 
+	// flag listenAddr to allow changing of ports in CLI for local machine
 	listenAddr := flag.String("port", ":"+port, "server address")
 	flag.Parse()
+
 	repo, err := repository.NewPostgreSQLRepository()
 	if err != nil {
 		log.Fatal(err)

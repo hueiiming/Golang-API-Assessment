@@ -20,6 +20,7 @@ const (
 	HttpMethodPost = "POST"
 )
 
+// MakeHTTPHandle Wrapper func to handle handlers error
 func MakeHTTPHandle(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
@@ -205,6 +206,8 @@ func (s *Server) HandleClearDatabase(w http.ResponseWriter, r *http.Request) err
 
 	return WriteToJSON(w, http.StatusNoContent, nil)
 }
+
+// Helper funcs
 
 func GetStudentIDs(repo repository.Repository, studentEmails []string) ([]int, error) {
 	var studentIDs []int
