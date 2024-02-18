@@ -12,7 +12,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/cleartestdata",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/cleardatabase",
 					"protocol": "https",
 					"host": [
 						"golang-api-assessment-hueiming",
@@ -21,7 +21,7 @@
 					],
 					"path": [
 						"api",
-						"cleartestdata"
+						"cleardatabase"
 					]
 				}
 			},
@@ -42,7 +42,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/populatetestdata",
+					"raw": "https://golang-api-assessment-hueiming.onrender.com/api/populatestudentsandteachers",
 					"protocol": "https",
 					"host": [
 						"golang-api-assessment-hueiming",
@@ -51,7 +51,7 @@
 					],
 					"path": [
 						"api",
-						"populatetestdata"
+						"populatestudentsandteachers"
 					]
 				}
 			},
