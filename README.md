@@ -63,6 +63,7 @@ Golang-API-Assessment/
 │
 ├── .env                                    # Will be provided by me
 ├── .gitignore
+├── .docker-compose.yml                     # To be used for connection to local postgresql
 ├── go.mod
 ├── go.sum
 ├── Makefile
