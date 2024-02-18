@@ -270,6 +270,10 @@ Throughout this project, I have been adhering to the git workflow best practices
 ```
 - Install go <br>
 ```brew install go``` or visit https://go.dev/doc/install
+- Install docker and docker-compose <br>
+```brew install docker docker-compose```
+- Install docker desktop <br>
+https://www.docker.com/products/docker-desktop/
 - Install mockery <br>
 ```brew install mockery``` or visit https://go.dev/doc/install
 - Install DBeaver <br>
@@ -288,8 +292,15 @@ Throughout this project, I have been adhering to the git workflow best practices
   ```
   git clone https://github.com/hueiiming/Golang-API-Assessment.git
   ```
+
+  #### Step 2: Launch Docker Desktop on your local machine
   
-  #### Step 2: Run go project
+  #### Step 3: Run docker-compose.yml file
+  ```
+  docker-compose up -d
+  ```
+
+  #### Step 4: Run go project
   ```
   make run
   ```
