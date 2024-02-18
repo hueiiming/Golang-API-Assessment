@@ -4,7 +4,6 @@ import (
 	"Golang-API-Assessment/pkg/api"
 	"Golang-API-Assessment/pkg/repository"
 	"flag"
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -35,6 +34,6 @@ func main() {
 	}
 
 	server := api.NewServer(*listenAddr, repo)
-	fmt.Println("server running on port:", *listenAddr)
+	log.Printf("Server running on address: %s", *listenAddr)
 	log.Fatal(server.Start())
 }
