@@ -7,7 +7,7 @@
 - [API Endpoints](#api-endpoints) <a name="api-endpoints"/>
 - [Design Decisions](#design-decisions) <a name="design-decisions"/>
 - [Git Workflow Practices](#git-workflow-practices) <a name="git-workflow-practices"/>
-- [Setup (Local & Production)](#setup-(local-&-production)) <a name="setup-(local-&-production)"/>
+- [Setup Local and Production](#setup-local-and-production) <a name="setup-local-and-production"/>
 - [Unit Tests](#unit-tests) <a name="unit-tests"/>
 - [Proposed Testing Sequence](#proposed-testing-sequence) <a name="proposed-testing-sequence"/>
 
@@ -261,7 +261,7 @@ Throughout this project, I have been adhering to the git workflow best practices
 
 <br>
 
-## Setup (Local & Production)
+## Setup Local and Production
 
 ### Prerequisites
 - Install Homebrew for macOS or Linux 
