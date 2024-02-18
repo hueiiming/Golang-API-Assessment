@@ -34,5 +34,6 @@ func main() {
 	}
 
 	server := api.NewServer(*listenAddr, repo)
+	log.Printf("Server running on address: %s", *listenAddr)
 	log.Fatal(server.Start())
 }
